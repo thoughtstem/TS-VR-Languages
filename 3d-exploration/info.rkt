@@ -6,6 +6,8 @@
   "https://github.com/thoughtstem/TS-Kata-Collections.git?path=ts-kata-util"
   "https://github.com/thoughtstem/vr-engine.git"
   "https://github.com/thoughtstem/vr-assets.git"
+  "define-assets-from"
+  "urlang"
   ))
 
 (define compile-omit-paths '(
