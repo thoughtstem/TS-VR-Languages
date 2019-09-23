@@ -32,6 +32,7 @@
   ;#:with-test (test vr-test)
   3d-exploration environment-3
   (exploration-scene
+   #:fly-mode #f
    #:environment (basic-forest #:preset 'poison
                                #:dressing 'cubes
                                #:dressing-amount 10
@@ -45,6 +46,7 @@
    ;#:with-test (test vr-test)
   3d-exploration environment-4
   (exploration-scene
+   #:speed 100
    #:environment (basic-environment #:preset 'tron
                                     #:dressing 'hexagons
                                     #:dressing-amount 40
@@ -74,8 +76,61 @@
   )
 
 
-
-; ===== SKY OBJECTS KATAS   
 ; ===== GROUND OBJECTS KATAS
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration ground-objects-1
+  (exploration-scene
+   #:ground-objects (list (basic-sphere)))
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration ground-objects-2
+  (define (my-sphere)
+    (basic-sphere #:color (color 255 0 0)
+                  #:radius 5.0
+                  #:opacity 0.75))
+  
+  (exploration-scene
+   #:ground-objects (list (my-sphere)))
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration ground-objects-3
+  (define (object-1)
+    (basic-cylinder #:radius 3
+                    #:height 5
+                    ;Made assets/textures folder but images are not getting out
+                    ;probably change that structure
+                    ;#:texture forest_bg
+                    #:rotation (rotation 0 1 0)))
+
+  (define (object-2)
+    (basic-dodecahedron #:scale (scale 1 5 1)
+                        #:color (color 0 255 0)))
+                    
+  (exploration-scene
+   #:ground-objects (list (object-1)
+                          (object-2)))
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration ground-objects-4
+  ;TODO: Something like mouse-click 
+  (exploration-scene
+   #:ground-objects (list (basic-sphere)))
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration ground-objects-5
+  ;TODO: Something like mouse-enter, mouse-leave
+  (exploration-scene
+   #:ground-objects (list (basic-sphere)))
+  )
+; ===== SKY OBJECTS KATAS   
 ; ===== PARTICLES KATAS
 ; ===== OCEAN KATAS

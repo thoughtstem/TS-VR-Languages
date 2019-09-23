@@ -18,14 +18,18 @@
   (real->double-flonum (/ (random  (exact-round (* min factor)) (exact-round (* max factor))) factor)))
 
 ; ==== EXPLORATION SCENE =====
-(define/contract/doc (exploration-scene #:environment    [environment (basic-forest)]
+(define/contract/doc (exploration-scene #:speed          [speed 300]
+                                        #:fly-mode?      [fly-mode #t]
+                                        #:environment    [environment (basic-forest)]
                                         #:ocean          [ocean #f]
                                         #:sky-objects    [sky-objects '()]
                                         #:ground-objects [ground-objects '()]
                                         . other-entities)
   ; === TODO: Fix contract
   (->i ()
-       (#:environment    [environment any/c]
+       (#:speed          [speed positive?]
+        #:fly-mode?      [fly-mode boolean?]
+        #:environment    [environment any/c]
         #:ocean          [ocean any/c]
         #:sky-objects    [sky-objects any/c]
         #:ground-objects [ground-objects any/c])
@@ -156,8 +160,8 @@
   (vr-scene environment
             (basic-sky #:color (color 255 165 0)
                        #:opacity 0.5)
-            (basic-camera #:fly? #t
-                          #:acceleration 300
+            (basic-camera #:fly? fly-mode
+                          #:acceleration speed
                           #:cursor (basic-cursor #:color (color 0 255 255)
                                                  #:opacity 0.5))
             (filter identity (append (list assets-manager)
