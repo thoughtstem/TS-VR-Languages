@@ -4,7 +4,7 @@
 (require (for-doc racket/base scribble/manual ))
 
 (require vr-engine
-         "../assets.rkt"
+         ;"../assets.rkt"
          ts-kata-util
          )
 

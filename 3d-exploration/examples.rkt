@@ -131,6 +131,42 @@
   (exploration-scene
    #:ground-objects (list (basic-sphere)))
   )
-; ===== SKY OBJECTS KATAS   
+
+
+; ===== SKY OBJECTS KATAS
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration sky-objects-1
+  (exploration-scene
+   #:sky-objects (list (basic-cone)))
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration sky-objects-2
+  (exploration-scene
+   #:sky-objects (list (basic-cone)))
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration sky-objects-3
+  (exploration-scene
+   #:sky-objects (list (basic-cone)))
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration sky-objects-4
+  (exploration-scene
+   #:sky-objects (list (basic-cone)))
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration sky-objects-5
+  (exploration-scene
+   #:sky-objects (list (basic-cone)))
+  )
 ; ===== PARTICLES KATAS
 ; ===== OCEAN KATAS
