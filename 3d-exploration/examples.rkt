@@ -102,9 +102,7 @@
   (define (object-1)
     (basic-cylinder #:radius 3
                     #:height 5
-                    ;Made assets/textures folder but images are not getting out
-                    ;probably change that structure
-                    ;#:texture forest_bg
+                    #:texture forest_bg
                     #:rotation (rotation 0 1 0)))
 
   (define (object-2)

@@ -3,8 +3,8 @@
 @require[scribble/extract]
 
 @; === TODO: angle already required conflict
-@;require[@for-label["../main.rkt"
-@;                    racket/base]]
+@require[@for-label[@;"../main.rkt"
+                    racket/base]]
 
 @title{3d-exploration}
 @author{thoughtstem}
