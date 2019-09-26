@@ -17,6 +17,9 @@ This language allows the user to create 3D Explorable Worlds.
 @section{Functions}
 @(include-extracted "../lang/main.rkt")
 
+@;TODO: doc assets from vr-assets
+@;(include-section "assets-library.rkt")
+@;(include-section vr-assets/assets)
 
 
 
