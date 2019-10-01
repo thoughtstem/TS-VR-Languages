@@ -23,7 +23,7 @@
   (exploration-scene
    #:environment (basic-volcano #:preset 'egypt
                                 #:dressing 'mushrooms
-                                #:dressing-amount 20
+                                #:dressing-amount 25
                                 #:dressing-scale 0.5
                                 ))
   )
@@ -51,27 +51,10 @@
                                     #:dressing 'hexagons
                                     #:dressing-amount 40
                                     #:dressing-scale 0.5
-                                    #:dressing-variance (variance 0.1 2.0 0.1)
+                                    #:dressing-variance (variance 2 2 2)
                                     #:ground 'canyon
                                     #:ground-texture 'squares
                                     #:fog 0.6
-                                    #:horizon-color "#00B0B0"
-                                    ))
-  )
-
-(define-example-code
-  ;#:with-test (test vr-test)
-  3d-exploration environment-5
-  (exploration-scene
-   #:environment (basic-environment #:preset 'tron
-                                    #:dressing 'hexagons
-                                    #:dressing-amount 40
-                                    #:dressing-scale 0.5
-                                    #:dressing-variance (variance 0.1 2.0 0.1)
-                                    #:ground 'canyon
-                                    #:ground-texture 'squares
-                                    #:fog 0.6
-                                    #:horizon-color "#00B0B0"
                                     ))
   )
 

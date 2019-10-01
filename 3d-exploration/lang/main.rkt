@@ -22,6 +22,7 @@
                                         #:fly-mode?      [fly-mode #t]
                                         #:environment    [environment (basic-forest)]
                                         #:ocean          [ocean #f]
+                                        #:stars          [stars #f]
                                         #:sky-objects    [sky-objects '()]
                                         #:ground-objects [ground-objects '()]
                                         . other-entities)
@@ -31,6 +32,7 @@
         #:fly-mode?      [fly-mode boolean?]
         #:environment    [environment any/c]
         #:ocean          [ocean any/c]
+        #:stars          [stars any/c]
         #:sky-objects    [sky-objects any/c]
         #:ground-objects [ground-objects any/c])
         #:rest          [more-objects any/c]
@@ -156,10 +158,10 @@
                                        (append (filter-not (or/c obj-model?
                                                                  gltf-model?) ground-objects)
                                                assetized-ground-object-models)))
-  
+ 
   (vr-scene environment
-            (basic-sky #:color (color 255 165 0)
-                       #:opacity 0.5)
+            ;(basic-sky #:color (color 255 165 0)
+            ;            #:opacity 0.5)
             (basic-camera #:fly? fly-mode
                           #:acceleration speed
                           #:cursor (basic-cursor #:color (color 0 255 255)
@@ -167,7 +169,7 @@
             (filter identity (append (list assets-manager)
                                      modified-sky-objects
                                      modified-ground-objects
-                                     (list ocean)
+                                     (list ocean stars)
                                      other-entities) )))
 
 (define (random-scale [min 0.25] [max 4.0])
