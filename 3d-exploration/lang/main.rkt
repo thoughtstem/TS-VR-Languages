@@ -20,7 +20,7 @@
 ; ==== EXPLORATION SCENE =====
 (define/contract/doc (exploration-scene #:speed          [speed 300]
                                         #:fly-mode?      [fly-mode #t]
-                                        #:environment    [environment (basic-forest)]
+                                        #:environment    [environment (basic-environment)]
                                         #:ocean          [ocean #f]
                                         #:stars          [stars #f]
                                         #:sky-objects    [sky-objects '()]
@@ -158,7 +158,8 @@
                                        (append (filter-not (or/c obj-model?
                                                                  gltf-model?) ground-objects)
                                                assetized-ground-object-models)))
- 
+  
+
   (vr-scene environment
             ;(basic-sky #:color (color 255 165 0)
             ;            #:opacity 0.5)

@@ -43,7 +43,7 @@
   )
 
 (define-example-code
-   ;#:with-test (test vr-test)
+  ;#:with-test (test vr-test)
   3d-exploration environment-4
   (exploration-scene
    #:speed 100
@@ -100,17 +100,25 @@
 (define-example-code
   ;#:with-test (test vr-test)
   3d-exploration ground-objects-4
-  ;TODO: Something like mouse-click 
   (exploration-scene
-   #:ground-objects (list (basic-sphere)))
+   #:ground-objects (list (basic-sphere
+                           #:color "red"
+                           #:on-mouse-click (list
+                                             (color "blue")))))
   )
 
 (define-example-code
   ;#:with-test (test vr-test)
   3d-exploration ground-objects-5
-  ;TODO: Something like mouse-enter, mouse-leave
   (exploration-scene
-   #:ground-objects (list (basic-sphere)))
+   #:ground-objects (list (basic-cylinder
+                           #:color 'orange
+                           #:on-mouse-enter (list
+                                             (color 'yellow)
+                                             (radius 5))
+                           #:on-mouse-leave (list
+                                             (color 'orange)
+                                             (radius 1)))))
   )
 
 
@@ -119,35 +127,106 @@
   ;#:with-test (test vr-test)
   3d-exploration sky-objects-1
   (exploration-scene
-   #:sky-objects (list (basic-cone)))
+   #:sky-objects (list (basic-cone
+                        #:scale (random-scale 1.0 5.0)
+                        #:color (random-color)
+                        #:rotation (random-rotation))))
   )
 
 (define-example-code
   ;#:with-test (test vr-test)
   3d-exploration sky-objects-2
-  (exploration-scene
-   #:sky-objects (list (basic-cone)))
+  (define (my-object)
+    (basic-dodecahedron
+     #:color (random-color)
+     #:opacity 0.2))
+  
+  (exploration-scene 
+   #:sky-objects (list (my-object)
+                       thoughtstem-logo))
   )
 
 (define-example-code
   ;#:with-test (test vr-test)
   3d-exploration sky-objects-3
   (exploration-scene
-   #:sky-objects (list (basic-cone)))
+   #:sky-objects (list bird
+                       astronaut
+                       sword))
   )
 
 (define-example-code
   ;#:with-test (test vr-test)
   3d-exploration sky-objects-4
   (exploration-scene
-   #:sky-objects (list (basic-cone)))
+   #:environment (basic-volcano
+                  #:fog 0)
+   #:stars (add-stars))
   )
 
 (define-example-code
   ;#:with-test (test vr-test)
   3d-exploration sky-objects-5
   (exploration-scene
-   #:sky-objects (list (basic-cone)))
+   #:environment (basic-forest
+                  #:horizon-color 'black
+                  #:sky-color 'black
+                  #:fog 0)
+   #:stars (add-stars #:hex-color 'yellow))
   )
+
 ; ===== PARTICLES KATAS
-; ===== OCEAN KATAS
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration particles-1
+  (exploration-scene
+   #:ground-objects (list (add-particles)))
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration particles-2
+  (exploration-scene
+    #:sky-objects (list
+                      (add-particles #:hex-color "#ff0000,#00ff00,#0000ff"
+                                     #:speed 20
+                                     #:size 5
+                                     #:age 2)))
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration particles-3
+  (exploration-scene
+   (add-particles #:preset 'rain
+                  #:hex-color "#0000ff"
+                  #:count 5000
+                  #:posn-spread (posn-spread 200 100 200)))
+
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration particles-4
+  (exploration-scene
+   #:environment (basic-environment
+                  #:preset 'egypt)
+   (add-particles #:preset 'dust
+                  #:count 4000
+                  #:hex-color "#deb887"))
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration particles-5
+  (exploration-scene
+   #:environment (basic-forest
+                  #:horizon-color "dark-blue"
+                  #:sky-color "black"
+                  #:fog 0.5)
+   (add-particles #:preset 'snow
+                  #:hex-color "#ffffff"
+                  #:count 2000))               
+  )
+  ; ===== OCEAN KATAS
+  
