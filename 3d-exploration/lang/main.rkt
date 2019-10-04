@@ -224,9 +224,9 @@
                        (basic-dodecahedron #:scale (random-scale 10.0 20.0)
                                            #:rotation (random-rotation)
                                            #:color (random-color))
-                       (add-particles #:color "#FF00FF" #:speed 2)
-                       (add-particles #:color "#FFFF00" #:speed 2)
-                       (add-particles #:color "#00FFFF" #:speed 4)
+                       (basic-particles #:color "#FF00FF" #:speed 2)
+                       (basic-particles #:color "#FFFF00" #:speed 2)
+                       (basic-particles #:color "#00FFFF" #:speed 4)
                        bird
                        ;bird
                        ;bird

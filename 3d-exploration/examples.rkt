@@ -63,13 +63,6 @@
 (define-example-code
   ;#:with-test (test vr-test)
   3d-exploration ground-objects-1
-  (exploration-scene
-   #:ground-objects (list (basic-sphere)))
-  )
-
-(define-example-code
-  ;#:with-test (test vr-test)
-  3d-exploration ground-objects-2
   (define (my-sphere)
     (basic-sphere #:color (color 255 0 0)
                   #:radius 5.0
@@ -81,11 +74,11 @@
 
 (define-example-code
   ;#:with-test (test vr-test)
-  3d-exploration ground-objects-3
+  3d-exploration ground-objects-2
   (define (object-1)
     (basic-cylinder #:radius 3
                     #:height 5
-                    #:texture forest_bg
+                    #:texture forest-bg
                     #:rotation (rotation 0 1 0)))
 
   (define (object-2)
@@ -95,6 +88,19 @@
   (exploration-scene
    #:ground-objects (list (object-1)
                           (object-2)))
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration ground-objects-3
+  (define (my-ocean)
+    (basic-ocean #:color "aqua"
+                 #:width 50
+                 #:depth 30))
+  (exploration-scene
+   #:ground-objects (list (my-ocean)
+                          (basic-ocean)
+                          (basic-ocean)))
   )
 
 (define-example-code
@@ -161,7 +167,7 @@
   (exploration-scene
    #:environment (basic-volcano
                   #:fog 0)
-   #:stars (add-stars))
+   #:stars (basic-stars))
   )
 
 (define-example-code
@@ -172,7 +178,7 @@
                   #:horizon-color 'black
                   #:sky-color 'black
                   #:fog 0)
-   #:stars (add-stars #:hex-color 'yellow))
+   #:stars (basic-stars #:hex-color 'yellow))
   )
 
 ; ===== PARTICLES KATAS
@@ -180,7 +186,7 @@
   ;#:with-test (test vr-test)
   3d-exploration particles-1
   (exploration-scene
-   #:ground-objects (list (add-particles)))
+   #:ground-objects (list (basic-particles)))
   )
 
 (define-example-code
@@ -188,7 +194,7 @@
   3d-exploration particles-2
   (exploration-scene
     #:sky-objects (list
-                      (add-particles #:hex-color "#ff0000,#00ff00,#0000ff"
+                      (basic-particles #:hex-color "#ff0000,#00ff00,#0000ff"
                                      #:speed 20
                                      #:size 5
                                      #:age 2)))
@@ -198,7 +204,7 @@
   ;#:with-test (test vr-test)
   3d-exploration particles-3
   (exploration-scene
-   (add-particles #:preset 'rain
+   (basic-particles #:preset 'rain
                   #:hex-color "#0000ff"
                   #:count 5000
                   #:posn-spread (posn-spread 200 100 200)))
@@ -211,7 +217,7 @@
   (exploration-scene
    #:environment (basic-environment
                   #:preset 'egypt)
-   (add-particles #:preset 'dust
+   (basic-particles #:preset 'dust
                   #:count 4000
                   #:hex-color "#deb887"))
   )
@@ -224,9 +230,85 @@
                   #:horizon-color "dark-blue"
                   #:sky-color "black"
                   #:fog 0.5)
-   (add-particles #:preset 'snow
+   (basic-particles #:preset 'snow
                   #:hex-color "#ffffff"
                   #:count 2000))               
   )
-  ; ===== OCEAN KATAS
-  
+
+
+  ; ===== ANIMATIONS KATAS
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration animations-1
+  (exploration-scene
+   (basic-box
+    #:color (random-color)
+    #:animations-list (list
+                       (animate-scale #:to 5))))               
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration animations-2
+  (exploration-scene
+   #:sky-objects (basic-cone
+                      #:components-list (list
+                                         (animate-position
+                                          #:loops "5"
+                                          #:to (to-posn 0 0 0)))))               
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration animations-3
+  (exploration-scene
+   #:ground-objects (list
+                     (basic-dodecahedron
+                      #:color (random-color)
+                      #:animations-list (list
+                                         (animate-scale #:to 3
+                                                        #:duration 10000)
+                                         (animate-rotation)))))               
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration animations-4
+  (define (earth)
+    (basic-sphere
+     #:position (position 25 0 0)    
+     #:texture earth-bg))
+  (exploration-scene
+   (basic-sphere #:texture sun-bg
+                 #:position (position 0 5 0)
+                 #:radius 5
+                 #:animations-list (list
+                                    (animate-rotation
+                                     #:duration 10000))
+                 #:components-list (list
+                                    (earth))))
+  )
+
+(define-example-code
+  ;#:with-test (test vr-test)
+  3d-exploration animations-5
+  (define (earth)
+    (basic-sphere
+     #:position (position 25 0 0)
+     #:animations-list (list
+                        (animate-rotation
+                         #:to (to-posn 360 0 360)))
+     #:components-list (list (moon))))
+  (define (moon)
+    (basic-sphere
+     #:position (position 1 1 2)
+     #:radius .2)) 
+  (exploration-scene
+   (basic-sphere #:position (position 0 5 0)
+                 #:radius 5
+                 #:animations-list (list
+                                    (animate-rotation
+                                     #:duration 10000))
+                 #:components-list (list
+                                    (earth))))           
+  )
