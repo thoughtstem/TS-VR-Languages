@@ -98,7 +98,7 @@
   (define (my-sphere)
     (basic-sphere
      #:color 'red
-     #:on-mouse-click (list
+     #:on-mouse-click (do-many
                        (color 'blue))))
     (exploration-scene
      #:ground-objects (list (my-sphere)))
@@ -110,10 +110,10 @@
   (define (my-cylinder)
     (basic-cylinder
      #:color 'orange
-     #:on-mouse-enter (list
+     #:on-mouse-enter (do-many
                        (color 'yellow)
                        (radius 5))
-     #:on-mouse-leave (list
+     #:on-mouse-leave (do-many
                        (color 'orange)
                        (radius 1))))
      (exploration-scene
@@ -227,7 +227,7 @@
                   #:sky-color 'black
                   #:fog 0.5)
    #:sky-objects (list
-                  (basic-particles #:image forest-bg ;dragon-image
+                  (basic-particles #:image dragon-image
                                    #:count 2000))               )
   )
 
@@ -240,7 +240,7 @@
    #:ground-objects (list
                      (basic-box
                       #:color (random-color)
-                      #:animations-list (list
+                      #:animations-list (do-many
                                          (animate-scale #:to 5))))               )
    )
 
@@ -262,7 +262,7 @@
    #:ground-objects (list
                      (basic-box
                       #:color (random-color)
-                      #:animations-list (list
+                      #:animations-list (do-many
                                          (animate-scale #:to 3
                                                         #:duration 10000)
                                          (animate-rotation)))))               
@@ -278,7 +278,7 @@
   (define (sun)
     (basic-sphere #:texture sun-bg
                  #:radius 5
-                 #:animations-list (list
+                 #:animations-list (do-many
                                     (animate-rotation))
                  #:components-list (list
                                     (earth))))
@@ -292,8 +292,8 @@
  (exploration-scene
  (3d-model #:model bird
             #:position (position 0 0 0)
-            #:animations-list (list (animate-position
-                                     #:to (posn 50 50 50)
+            #:animations-list (do-many (animate-position
+                                     #:to (position 50 50 50)
                                      #:duration 10000))))          
   )
 
