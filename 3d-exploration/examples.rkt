@@ -248,11 +248,11 @@
   ;#:with-test (test vr-test)
   3d-exploration animations-2
   (exploration-scene
-   #:sky-objects (basic-cone
-                      #:components-list (list
-                                         (animate-position
-                                          #:loops 5
-                                          #:to (position 0 0 0)))))               
+   #:sky-objects (list (basic-cone
+                        #:components-list (list
+                                           (animate-position
+                                            #:loops 5
+                                            #:to (position 0 0 0))))))             
   )
 
 (define-example-code
