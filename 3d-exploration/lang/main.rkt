@@ -20,7 +20,8 @@
 ; ==== EXPLORATION SCENE =====
 (define/contract/doc (exploration-scene #:speed          [speed 300]
                                         #:fly-mode?      [fly-mode #t]
-                                        #:environment    [environment (basic-environment)]
+                                        #:environment    [environment (basic-environment #:basic? #f
+                                                                                         #:preset 'default)]
                                         #:ocean          [ocean #f]
                                         #:stars          [stars #f]
                                         #:sky-objects    [sky-objects '()]

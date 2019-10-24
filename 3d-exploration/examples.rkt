@@ -3,23 +3,21 @@
 (require ts-kata-util)
 
 ; === TODO: Make vr-test work, file in ts-kata-util/main.rkt
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration hello-world-1
-  (exploration-scene))
+  (exploration-scene)
+  )
 
 
 ; ===== ENVIRONMENT KATAS
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration environment-1
   (exploration-scene
    #:environment (basic-environment
                   #:preset 'volcano))
   )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration environment-2
   (exploration-scene
    #:environment (basic-environment
@@ -28,8 +26,7 @@
                   #:dressing-scale 0.5))
   )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration environment-3
   (exploration-scene
    #:environment (basic-environment
@@ -41,10 +38,11 @@
   )
 
 (define-example-code
-  ;#:with-test (test vr-test)
+  ;needs preset or else colors don't work
   3d-exploration environment-4
   (exploration-scene
    #:environment (basic-environment
+                  #:preset 'egypt 
                   #:horizon-color 'orange
                   #:sky-color 'dark-blue
                   #:fog 0.6))
@@ -52,8 +50,7 @@
 
 
 ; ===== GROUND OBJECTS KATAS
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration ground-objects-1
   (define (my-sphere)
     (basic-sphere #:color 'red
@@ -63,8 +60,7 @@
    #:ground-objects (list (my-sphere)))
   )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration ground-objects-2
   (define (my-cylinder)
     (basic-cylinder #:radius 3
@@ -79,8 +75,7 @@
                           (my-box)))
   )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration ground-objects-3
   (define (my-ocean)
     (basic-ocean #:color 'aqua
@@ -92,8 +87,7 @@
                           (my-ocean)))
   )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code 
   3d-exploration ground-objects-4
   (define (my-sphere)
     (basic-sphere
@@ -104,8 +98,7 @@
      #:ground-objects (list (my-sphere)))
   )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration ground-objects-5
   (define (my-cylinder)
     (basic-cylinder
@@ -122,18 +115,16 @@
 
 
 ; ===== SKY OBJECTS KATAS
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration sky-objects-1
   (exploration-scene
    #:sky-objects (list (basic-cone
-                        #:scale (random-scale 1.0 5.0)
+                        #:scale (random-scale)
                         #:color (random-color)
                         #:rotation (random-rotation))))
   )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration sky-objects-2
   (define (my-sphere)
     (basic-sphere
@@ -145,8 +136,7 @@
                        thoughtstem-logo))
   )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration sky-objects-3
   (exploration-scene
    #:sky-objects (list bird
@@ -154,8 +144,7 @@
                        sword))
   )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration sky-objects-4
   (exploration-scene
    #:environment (basic-environment
@@ -164,112 +153,125 @@
    #:stars (basic-stars))
   )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration sky-objects-5
   (exploration-scene
    #:environment (basic-environment
                   #:preset 'forest
-                  #:horizon-color 'black
+                  #:horizon-color 'dark-blue
                   #:sky-color 'black
                   #:fog 0)
    #:stars (basic-stars))
   )
 
 ; ===== PARTICLES KATAS
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration particles-1
   (exploration-scene
    #:ground-objects (list (basic-particles)))
   )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration particles-2
-  (exploration-scene
-    #:sky-objects (list
-                      (basic-particles
-                       #:speed 20
-                       #:size 5
-                       #:age 2)))
-  )
-
-(define-example-code
-  ;#:with-test (test vr-test)
-  3d-exploration particles-3
+  (define (my-particles)
+    (basic-particles
+     #:speed 20
+     #:size 5
+     #:age 2))
+  
   (exploration-scene
    #:sky-objects (list
-                  (basic-particles #:preset 'rain
-                                   #:count 5000
-                                   #:posn-spread (posn-spread 200 100 200))))
+                  (my-particles)))
+  )
+
+(define-example-code  
+  3d-exploration particles-3
+  (define (my-particles)
+    (basic-particles #:preset 'rain
+                     #:count 5000
+                     #:posn-spread (posn-spread 200 100 200)))
+  
+  (exploration-scene
+   #:sky-objects (list
+                  (my-particles)))
 
   )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration particles-4
+  (define (my-particles)
+    (basic-particles #:preset 'dust
+                     #:count 4000))
+  
   (exploration-scene
    #:environment (basic-environment
                   #:preset 'egypt)
-   #:sky-objects (list
-                  (basic-particles #:preset 'dust
-                                   #:count 4000)))
+   #:ground-objects (list
+                     (my-particles)))
   )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration particles-5
+  (define (my-environment)
+    (basic-environment
+     #:preset 'forest
+     #:horizon-color 'dark-blue
+     #:sky-color 'black
+     #:fog 0.5))
+
+  (define (my-particles)
+    (basic-particles #:image dragon-image
+                                   #:count 2000))
+  
   (exploration-scene
-   #:environment (basic-environment
-                  #:preset 'forest
-                  #:horizon-color 'dark-blue
-                  #:sky-color 'black
-                  #:fog 0.5)
+   #:environment (my-environment)
    #:sky-objects (list
-                  (basic-particles #:image dragon-image
-                                   #:count 2000))               )
+                  (my-particles)))
   )
 
 
   ; ===== ANIMATIONS KATAS
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration animations-1
+  (define (my-cylinder)
+    (basic-cylinder
+     #:color (random-color)
+     #:animations-list (do-many
+                        (animate-scale #:to 5))))
+  
   (exploration-scene
    #:ground-objects (list
-                     (basic-box
-                      #:color (random-color)
-                      #:animations-list (do-many
-                                         (animate-scale #:to 5))))               )
-   )
+                     (my-cylinder)))
+  )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration animations-2
+  (define (my-cone)
+    (basic-cone
+     #:animations-list (do-many
+                        (animate-position
+                         #:loops 5
+                         #:to (position 0 0 0)))))
   (exploration-scene
-   #:sky-objects (list (basic-cone
-                        #:components-list (list
-                                           (animate-position
-                                            #:loops 5
-                                            #:to (position 0 0 0))))))             
+   #:sky-objects (list (my-cone)))             
   )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration animations-3
+  (define (my-box)
+    (basic-box
+     #:color (random-color)
+     #:animations-list (do-many
+                        (animate-rotation)
+                        (animate-scale #:to 3
+                                       #:duration 10000))))
+  
   (exploration-scene
    #:ground-objects (list
-                     (basic-box
-                      #:color (random-color)
-                      #:animations-list (do-many
-                                         (animate-scale #:to 3
-                                                        #:duration 10000)
-                                         (animate-rotation)))))               
+                     (my-box)))               
   )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration animations-4
   (define (earth)
     (basic-sphere
@@ -277,23 +279,27 @@
      #:texture earth-bg))
   (define (sun)
     (basic-sphere #:texture sun-bg
-                 #:radius 5
-                 #:animations-list (do-many
-                                    (animate-rotation))
-                 #:components-list (list
-                                    (earth))))
+                  #:radius 5
+                  #:animations-list (do-many
+                                     (animate-rotation))
+                  #:components-list (list
+                                     (earth))))
   (exploration-scene
-   #:sky-objects (list (sun)))
+   #:sky-objects (list
+                  (sun)))
   )
 
-(define-example-code
-  ;#:with-test (test vr-test)
+(define-example-code  
   3d-exploration animations-5
- (exploration-scene
- (3d-model #:model bird
-            #:position (position 0 0 0)
-            #:animations-list (do-many (animate-position
-                                     #:to (position 50 50 50)
-                                     #:duration 10000))))          
+  (define (my-model)
+    (3d-model #:model bird
+              #:position (position 0 0 0)
+              #:animations-list (do-many
+                                 (animate-position
+                                  #:to (position 50 50 50)
+                                  #:duration 10000))))
+  (exploration-scene
+   #:ground-objects (list
+                     (my-model)))          
   )
 
