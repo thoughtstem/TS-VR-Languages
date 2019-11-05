@@ -220,8 +220,9 @@
      #:fog 0.5))
 
   (define (my-particles)
-    (basic-particles #:image dragon-image
-                                   #:count 2000))
+    (basic-particles #:preset 'dust
+                     #:image dragon-image
+                     #:count 2000))
   
   (exploration-scene
    #:environment (my-environment)
