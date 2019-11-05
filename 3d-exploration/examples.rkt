@@ -78,7 +78,7 @@
 (define-example-code  
   3d-exploration ground-objects-3
   (define (my-ocean)
-    (basic-ocean #:color 'aqua
+    (basic-ocean #:color 'orange
                  #:width 30
                  #:depth 20))
   (exploration-scene
@@ -175,9 +175,9 @@
   3d-exploration particles-2
   (define (my-particles)
     (basic-particles
-     #:speed 20
+     #:speed 5
      #:size 5
-     #:age 2))
+     #:age 3))
   
   (exploration-scene
    #:sky-objects (list
@@ -188,8 +188,7 @@
   3d-exploration particles-3
   (define (my-particles)
     (basic-particles #:preset 'rain
-                     #:count 5000
-                     #:posn-spread (posn-spread 200 100 200)))
+                     #:count 5000))
   
   (exploration-scene
    #:sky-objects (list
@@ -221,7 +220,7 @@
 
   (define (my-particles)
     (basic-particles #:image dragon-image
-                                   #:count 2000))
+                     #:count 2000))
   
   (exploration-scene
    #:environment (my-environment)
@@ -263,8 +262,7 @@
      #:color (random-color)
      #:animations-list (do-many
                         (animate-rotation)
-                        (animate-scale #:to 3
-                                       #:duration 10000))))
+                        (animate-scale #:to 3))))
   
   (exploration-scene
    #:ground-objects (list
@@ -296,8 +294,8 @@
               #:position (position 0 0 0)
               #:animations-list (do-many
                                  (animate-position
-                                  #:to (position 50 50 50)
-                                  #:duration 10000))))
+                                  #:to (position 100 100 100)
+                                  #:loops 0))))
   (exploration-scene
    #:ground-objects (list
                      (my-model)))          
