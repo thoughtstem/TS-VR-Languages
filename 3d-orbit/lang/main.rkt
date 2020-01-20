@@ -4,7 +4,7 @@
 (require (for-doc racket/base scribble/manual))
 
 (require vr-engine
-         ;vr-assets ;remove later
+         "../assets.rkt"
          image-coloring
          ts-kata-util)
 
