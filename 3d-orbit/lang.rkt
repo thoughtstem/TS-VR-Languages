@@ -10,4 +10,5 @@
 (require "./lang/main.rkt"
          "./assets.rkt"
          )
-(require vr-engine)
+(require (except-in vr-engine
+                    basic-ring))

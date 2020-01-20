@@ -3,7 +3,8 @@
 (require scribble/srcdoc)
 (require (for-doc racket/base scribble/manual))
 
-(require vr-engine
+(require (except-in vr-engine
+                    basic-ring)
          "../assets.rkt"
          image-coloring
          ts-kata-util)
@@ -15,6 +16,12 @@
          x-rotation
          y-rotation
          z-rotation
+
+         basic-star
+         basic-planet
+         basic-ring
+         basic-moon
+         basic-asteroid
 
          star-sun
          planet-mercury
