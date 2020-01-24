@@ -18,4 +18,4 @@ This language allows the user to create 3D Orbits.
 @(include-extracted "../lang/main.rkt")
 
 @section{VR Assets}
-All of the assets in this @(hyperlink "https://docs.racket-lang.org/vr-assets@vr-assets/index.html" "library") are provided.
+All of the assets in this @(hyperlink "https://katas.thoughtstem.com/VR/ts-3d-assets/doc/manual/index.html" "library") are provided.
