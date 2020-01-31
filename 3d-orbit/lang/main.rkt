@@ -127,20 +127,43 @@
           #f)))
 
 (define (assetize-model e)
-    (define old-attrs (entity-attrs e))
-    (define (src-or-mtl? attr)
-      (or (is-a? attr src%)
-          (is-a? attr mtl%)))
-    (define new-src (src (~a "#" (string-replace (send (findf (curryr is-a? src%) old-attrs) render)
-                                                 "." "-"))))
-    (define new-mtl (if (findf (curryr is-a? mtl%) old-attrs)
-                        (mtl (~a "#" (string-replace (send (findf (curryr is-a? mtl%) old-attrs) render)
-                                                     "." "-")))
-                        #f))
-    (define new-attrs (append (filter identity (list new-src
-                                                     new-mtl))
-                              (filter-not src-or-mtl? old-attrs)))
-    (update-attributes e new-attrs))
+  (define old-attrs (entity-attrs e))
+  (define (src-or-mtl? attr)
+    (or (is-a? attr src%)
+        (is-a? attr mtl%)))
+  (define new-src (src (~a "#" (string-replace (send (findf (curryr is-a? src%) old-attrs) render)
+                                               "." "-"))))
+  (define new-mtl (if (findf (curryr is-a? mtl%) old-attrs)
+                      (mtl (~a "#" (string-replace (send (findf (curryr is-a? mtl%) old-attrs) render)
+                                                   "." "-")))
+                      #f))
+  (define new-attrs (append (filter identity (list new-src
+                                                   new-mtl))
+                            (filter-not src-or-mtl? old-attrs)))
+  (update-attributes e new-attrs))
+
+(define (make-orbit l xyz)
+  (define n-list (map string->number l))
+  (basic-ring #:rotation (cond
+                           [(equal? "x" xyz) (rotation 90 0 0)]
+                           [(equal? "y" xyz) (rotation 0 90 0)]
+                           [(equal? "z" xyz) (rotation 0 0 90)])
+              #:radius (get-distance (position (first n-list)
+                                               (second n-list)
+                                               (third n-list))
+                                     (position 0 0 0))
+              #:thicknes 0.05
+              #:opacity 1.0
+              #:color 'white))
+
+  
+(define (add-orbits a-list xyz)
+  (define (filter-position-from obj)
+    (filter position-attribute? (entity-attrs obj)))
+  (define posn-attr-list (flatten (map filter-position-from a-list)))
+  (define posn-str-list (map string-split (map render posn-attr-list)))
+  (define xyz-list (make-list (length posn-str-list) xyz))
+  (map make-orbit posn-str-list xyz-list))
 
 ; ==== SPACE ORBIT =====
 (define/contract/doc (space-orbit #:fly-speed       [speed 750]
@@ -260,34 +283,15 @@
                     #:label           [l #f]
                     #:label-color     [lc 'white]
                     #:label-position  [lp (position 0 r 0)]
-                    #:label-scale     [ls (scale (* 2 r) (* 2 r) 0)]
+                    #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
                     #:animations-list [animations-list (do-many (y-rotation))]
                     #:planets-list    [p-list '()]
                     #:on-mouse-enter  [mouse-enter #f]
                     #:on-mouse-leave  [mouse-leave #f]
                     #:on-mouse-click  [mouse-click #f]
-                    #:components-list [c-list '()]
-                    )
+                    #:components-list [c-list '()])
 
-  (define (make-orbit l)
-    (define n-list (map string->number l))
-    (basic-ring #:rotation (rotation 90 0 0)
-                #:radius (get-distance (position (first n-list)
-                                                 (second n-list)
-                                                 (third n-list))
-                                       (position 0 0 0))
-                #:thicknes 0.05
-                #:opacity 1.0
-                #:color 'white))
-  
-  (define (add-orbits)
-    (define (filter-position-from planet)
-      (filter position-attribute? (entity-attrs planet)))
-    (define posn-attr-list (flatten (map filter-position-from p-list)))
-    (define posn-str-list (map string-split (map render posn-attr-list)))
-    (map make-orbit posn-str-list))
-
-  (define (label)
+  (define label
     (if l
         (list (basic-text #:scale ls
                           #:position lp
@@ -297,7 +301,7 @@
         '()))
 
   (define modified-planets (append (map randomize-xz-posn (filter change-position?
-                                                                   p-list))
+                                                                  p-list))
                                    (filter-not change-position? p-list)))
     
   
@@ -312,12 +316,14 @@
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
                 #:on-mouse-click  mouse-click
-                #:components-list (if orbits?
-                                      (append (if (empty? p-list)
+                #:components-list (append (if orbits?
+                                              (if (empty? p-list)
                                                   '()
-                                                  (add-orbits))
-                                              modified-planets c-list (label))
-                                      (append modified-planets c-list (label)))))
+                                                  (add-orbits p-list "x"))
+                                              '())
+                                          modified-planets
+                                          c-list
+                                          label)))
 
 (define (basic-ring  #:rotation [rota (rotation 0 0 0)]
                      #:radius   [rad (random-float 0.25 1.5 #:factor 100)]
@@ -356,7 +362,8 @@
                       #:label           [l #f]
                       #:label-color     [lc 'white]
                       #:label-position  [lp (position 0 r 0)]
-                      #:label-scale     [ls (scale (* 2 r) (* 2 r) 0)]
+                      #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
+                      #:show-orbits?    [orbits? #f]
                       #:animations-list [animations-list (do-many (x-rotation))]
                       #:on-mouse-enter  [mouse-enter #f]
                       #:on-mouse-leave  [mouse-leave #f]
@@ -372,7 +379,7 @@
                               (filter-not radius-attribute? old-attrs)))
     (update-attributes e new-attrs))
 
-  (define (label)
+  (define label
     (if l
         (list (basic-text #:scale ls
                           #:position lp
@@ -382,8 +389,8 @@
         '()))
 
   (define modified-moons (append (map randomize-position (filter change-position?
-                                                                   m-list))
-                                   (filter-not change-position? m-list)))
+                                                                 m-list))
+                                 (filter-not change-position? m-list)))
     
   (basic-sphere #:position        pos
                 #:rotation        rota
@@ -401,7 +408,12 @@
                                           (if (empty? r-list)
                                               '()
                                               (map adjust-radius r-list))
-                                          (label))))
+                                          (if orbits?
+                                              (if (empty? m-list)
+                                                  '()
+                                                  (add-orbits m-list "y"))
+                                              '())
+                                          label)))
 
 (define (basic-moon #:position        [pos (position 0 (random-range 7 12) (random-range 7 12))]
                     #:rotation        [rota (rotation 0.0 0.0 0.0)]
@@ -413,14 +425,14 @@
                     #:label           [l #f]
                     #:label-color     [lc 'white]
                     #:label-position  [lp (position 0 r 0)]
-                    #:label-scale     [ls (scale (* 2 r) (* 2 r) 0)]
+                    #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
                     #:animations-list [animations-list (do-many (y-rotation))]
                     #:on-mouse-enter  [mouse-enter #f]
                     #:on-mouse-leave  [mouse-leave #f]
                     #:on-mouse-click  [mouse-click #f]
                     #:components-list [c '()])
 
-  (define (label)
+  (define label
     (if l
         (list (basic-text #:scale ls
                           #:position lp
@@ -440,7 +452,7 @@
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
                 #:on-mouse-click  mouse-click
-                #:components-list (append c (label))))
+                #:components-list (append c label)))
 
 (define (basic-asteroid #:position        [pos (position 0 (random-range 7 12) (random-range 7 12))]
                         #:rotation        [rota (rotation 0.0 0.0 0.0)]
@@ -456,14 +468,14 @@
                         #:label           [l #f]
                         #:label-color     [lc 'white]
                         #:label-position  [lp (position 0 r 0)]
-                        #:label-scale     [ls (scale (* 2 r) (* 2 r) 0)]
+                        #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
                         #:animations-list [animations-list (do-many (y-rotation))]
                         #:on-mouse-enter  [mouse-enter #f]
                         #:on-mouse-leave  [mouse-leave #f]
                         #:on-mouse-click  [mouse-click #f]
                         #:components-list [c '()])
 
-  (define (label)
+  (define label
     (if l
         (list (basic-text #:scale ls
                           #:position lp
@@ -483,7 +495,7 @@
                       #:on-mouse-enter  mouse-enter
                       #:on-mouse-leave  mouse-leave
                       #:on-mouse-click  mouse-click
-                      #:components-list (append c (label))))
+                      #:components-list (append c label)))
 
 ; ====== SUN AND PLANETS ======
 (define (star-sun #:position        [pos (position 0 0 -250)]
@@ -497,7 +509,7 @@
                   #:label           [l "Sun"]
                   #:label-color     [lc 'white]
                   #:label-position  [lp (position 0 r 0)]
-                  #:label-scale     [ls (scale (* 2 r) (* 2 r) 0)]
+                  #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
                   #:animations-list [animations-list (do-many (y-rotation))]
                   #:planets-list    [p-list '()]
                   #:on-mouse-enter  [mouse-enter #f]
@@ -533,7 +545,7 @@
                         #:label           [l "Mercury"]
                         #:label-color     [lc 'white]
                         #:label-position  [lp (position 0 r 0)]
-                        #:label-scale     [ls (scale (* 2 r) (* 2 r) 0)]
+                        #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
                         #:animations-list [animations-list (do-many (x-rotation))]
                         #:on-mouse-enter  [mouse-enter #f]
                         #:on-mouse-leave  [mouse-leave #f]
@@ -568,7 +580,7 @@
                       #:label           [l "Venus"]
                       #:label-color     [lc 'white]
                       #:label-position  [lp (position 0 r 0)]
-                      #:label-scale     [ls (scale (* 2 r) (* 2 r) 0)]
+                      #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
                       #:animations-list [animations-list (do-many (x-rotation))]
                       #:on-mouse-enter  [mouse-enter #f]
                       #:on-mouse-leave  [mouse-leave #f]
@@ -603,7 +615,7 @@
                       #:label           [l "Earth"]
                       #:label-color     [lc 'white]
                       #:label-position  [lp (position 0 r 0)]
-                      #:label-scale     [ls (scale (* 2 r) (* 2 r) 0)]
+                      #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
                       #:animations-list [animations-list (do-many (x-rotation))]
                       #:on-mouse-enter  [mouse-enter #f]
                       #:on-mouse-leave  [mouse-leave #f]
@@ -636,7 +648,7 @@
                    #:label           [l "Moon"]
                    #:label-color     [lc 'white]
                    #:label-position  [lp (position 0 r 0)]
-                   #:label-scale     [ls (scale (* 2 r) (* 2 r) 0)]
+                   #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
                    #:animations-list [animations-list (do-many (y-rotation))]
                    #:on-mouse-enter  [mouse-enter #f]
                    #:on-mouse-leave  [mouse-leave #f]
@@ -671,7 +683,7 @@
                      #:label           [l "Mars"]
                      #:label-color     [lc 'white]
                      #:label-position  [lp (position 0 r 0)]
-                     #:label-scale     [ls (scale (* 2 r) (* 2 r) 0)]
+                     #:label-scale     [ls (scale (* 2 r) (* 2 r) 10)]
                      #:animations-list [animations-list (do-many (x-rotation))]
                      #:on-mouse-enter  [mouse-enter #f]
                      #:on-mouse-leave  [mouse-leave #f]
@@ -706,7 +718,7 @@
                         #:label           [l "Jupiter"]
                         #:label-color     [lc 'white]
                         #:label-position  [lp (position 0 r 0)]
-                        #:label-scale     [ls (scale (* 2 r) (* 2 r) 0)]
+                        #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
                         #:animations-list [animations-list (do-many (x-rotation))]
                         #:on-mouse-enter  [mouse-enter #f]
                         #:on-mouse-leave  [mouse-leave #f]
@@ -752,7 +764,7 @@
                        #:label           [l "Saturn"]
                        #:label-color     [lc 'white]
                        #:label-position  [lp (position 0 r 0)]
-                       #:label-scale     [ls (scale (* 2 r) (* 2 r) 0)]
+                       #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
                        #:animations-list [animations-list (do-many (x-rotation))]
                        #:on-mouse-enter  [mouse-enter #f]
                        #:on-mouse-leave  [mouse-leave #f]
@@ -787,7 +799,7 @@
                        #:label           [l "Uranus"]
                        #:label-color     [lc 'white]
                        #:label-position  [lp (position 0 r 0)]
-                       #:label-scale     [ls (scale (* 2 r) (* 2 r) 0)]
+                       #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
                        #:animations-list [animations-list (do-many (x-rotation))]
                        #:on-mouse-enter  [mouse-enter #f]
                        #:on-mouse-leave  [mouse-leave #f]
@@ -822,7 +834,7 @@
                         #:label           [l "Neptune"]
                         #:label-color     [lc 'white]
                         #:label-position  [lp (position 0 r 0)]
-                        #:label-scale     [ls (scale (* 2 r) (* 2 r) 0)]
+                        #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
                         #:animations-list [animations-list (do-many (x-rotation))]
                         #:on-mouse-enter  [mouse-enter #f]
                         #:on-mouse-leave  [mouse-leave #f]
@@ -893,8 +905,8 @@
                                          (planet-earth #:position (position 124 0 0)
                                                        #:radius 0.528
                                                        #:moons-list (list
-                                                                       (moon-moon #:position (position 2 0 0)
-                                                                                  #:radius 0.072)))
+                                                                     (moon-moon #:position (position 2 0 0)
+                                                                                #:radius 0.072)))
                                          (planet-mars #:position (position 188.8 0 0)
                                                       #:radius 0.281)
                                          (planet-jupiter #:position (position 644.8 0 0)
@@ -913,51 +925,51 @@
                               #:star-radius 1200
                               #:star-size 2)
    #:objects-list (list (basic-star #:position (position 0 0 -250)
-                               #:radius .1
-                               #:texture sun-bg
-                               #:label "Sun")
-                   ;proximacentauri 0.1542 -- nearest star to the sun
-                   (basic-star #:position (position (+ .1 0.015) 0 -250)
-                               #:radius 0.015
-                               #:label "Proxima Centauri")
-                   ;siriusa 1.711 -- brightest star in the sky
-                   (basic-star #:position (position (+ .1 (* 2 0.015) .171) 0 -250)
-                               #:radius .171
-                               #:label "Sirius A")
-                   ;pollux 8.8 -- closest giant star
-                   (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171)) .88) 0 -250)
-                               #:radius .88
-                               #:label "Pollux")
-                   ;arcturus 25.4 -- brightest in the northern celestial hemisphere
-                   (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171 .88)) 2.54) 0 -250)
-                               #:radius 2.54
-                               #:label "Arcturus")
-                   ;aldebaran 44.13 -- 14th brightest star
-                   (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171 .88 2.54)) 4.413) 0 -250)
-                               #:radius 4.413
-                               #:label "Aldebaran")
-                   ;rigel 78.9 -- 7th brighstest star
-                   (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171 .88 2.54 4.413)) 7.89) 0 -250)
-                               #:radius 7.89
-                               #:label "Rigel")
-                   ;antares 740 -- 15th brightest star
-                   (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171 .88 2.54 4.413 7.89)) 74) 0 -250)
-                               #:radius 74
-                               #:label "Antares")
-                   ;betelgeuse 887 -- 11th brightest star
-                   (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171 .88 2.54 4.413 7.89 74)) 88.7) 0 -250)
-                               #:radius 88.7
-                               #:label "Betelgeuse")
-                   ;mucephei 1260 -- 100,000 times brighter than the Sun
-                   (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171 .88 2.54 4.413 7.89 74 88.7)) 126) 0 -250)
-                               #:radius 126
-                               #:label "Mucephei")
-                   ;vvcephei 1400 -- is an eclipsing binary star system
-                   (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171 .88 2.54 4.413 7.89 74 88.7 126)) 140) 0 -250)
-                               #:radius 140
-                               #:label "VV Cephei")
-                   ;uyscuti 1708 -- one of the largest known stars
-                   (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171 .88 2.54 4.413 7.89 74 88.7 126 140)) 170.8) 0 -250)
-                               #:radius 170.8
-                               #:label "UY Scuti")
-                   )))
+                                    #:radius .1
+                                    #:texture sun-bg
+                                    #:label "Sun")
+                        ;proximacentauri 0.1542 -- nearest star to the sun
+                        (basic-star #:position (position (+ .1 0.015) 0 -250)
+                                    #:radius 0.015
+                                    #:label "Proxima Centauri")
+                        ;siriusa 1.711 -- brightest star in the sky
+                        (basic-star #:position (position (+ .1 (* 2 0.015) .171) 0 -250)
+                                    #:radius .171
+                                    #:label "Sirius A")
+                        ;pollux 8.8 -- closest giant star
+                        (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171)) .88) 0 -250)
+                                    #:radius .88
+                                    #:label "Pollux")
+                        ;arcturus 25.4 -- brightest in the northern celestial hemisphere
+                        (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171 .88)) 2.54) 0 -250)
+                                    #:radius 2.54
+                                    #:label "Arcturus")
+                        ;aldebaran 44.13 -- 14th brightest star
+                        (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171 .88 2.54)) 4.413) 0 -250)
+                                    #:radius 4.413
+                                    #:label "Aldebaran")
+                        ;rigel 78.9 -- 7th brighstest star
+                        (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171 .88 2.54 4.413)) 7.89) 0 -250)
+                                    #:radius 7.89
+                                    #:label "Rigel")
+                        ;antares 740 -- 15th brightest star
+                        (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171 .88 2.54 4.413 7.89)) 74) 0 -250)
+                                    #:radius 74
+                                    #:label "Antares")
+                        ;betelgeuse 887 -- 11th brightest star
+                        (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171 .88 2.54 4.413 7.89 74)) 88.7) 0 -250)
+                                    #:radius 88.7
+                                    #:label "Betelgeuse")
+                        ;mucephei 1260 -- 100,000 times brighter than the Sun
+                        (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171 .88 2.54 4.413 7.89 74 88.7)) 126) 0 -250)
+                                    #:radius 126
+                                    #:label "Mucephei")
+                        ;vvcephei 1400 -- is an eclipsing binary star system
+                        (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171 .88 2.54 4.413 7.89 74 88.7 126)) 140) 0 -250)
+                                    #:radius 140
+                                    #:label "VV Cephei")
+                        ;uyscuti 1708 -- one of the largest known stars
+                        (basic-star #:position (position (+ .1 (* 2 (+ 0.015 .171 .88 2.54 4.413 7.89 74 88.7 126 140)) 170.8) 0 -250)
+                                    #:radius 170.8
+                                    #:label "UY Scuti")
+                        )))
