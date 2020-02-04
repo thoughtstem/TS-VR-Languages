@@ -46,7 +46,7 @@
   (space-orbit
    #:start-position (position 0 0 100)
    #:star (basic-star
-           #:radius 15))
+           #:radius 20))
   )
 
 ; ===== STAR & PLANET KATAS
@@ -215,4 +215,53 @@
                             #:rings-list (my-rings)))))
   )
 ; ===== STAR SYSTEM KATAS
+(define-example-code  
+  3d-orbit star-system-1
+  (space-orbit)
+  )
+
+(define-example-code  
+  3d-orbit star-system-2
+  (space-orbit)
+  )
+
+(define-example-code  
+  3d-orbit star-system-3
+  (space-orbit)
+  )
+
+(define-example-code  
+  3d-orbit star-system-4
+  (space-orbit)
+  )
+
+(define-example-code  
+  3d-orbit star-system-5
+  (space-orbit)
+  )
+
 ; ===== SPACE OBJECTS KATAS
+(define-example-code  
+  3d-orbit space-objects-1
+  (space-orbit)
+  )
+
+(define-example-code  
+  3d-orbit space-objects-2
+  (space-orbit)
+  )
+
+(define-example-code  
+  3d-orbit space-objects-3
+  (space-orbit)
+  )
+
+(define-example-code  
+  3d-orbit space-objects-4
+  (space-orbit)
+  )
+
+(define-example-code  
+  3d-orbit space-objects-5
+  (space-orbit)
+  )
