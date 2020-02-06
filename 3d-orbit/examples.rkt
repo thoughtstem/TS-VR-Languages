@@ -4,7 +4,7 @@
 
 (define-example-code  
   3d-orbit hello-world-1
-  (space-orbit)
+  (orbit-scene)
   )
 
 
@@ -12,7 +12,7 @@
 
 (define-example-code  
   3d-orbit orbits-1
-  (space-orbit
+  (orbit-scene
    #:fly-speed 1000
    #:star (basic-star))
   )
@@ -24,7 +24,7 @@
      #:universe-color 'blue
      #:star-color 'orange))
   
-  (space-orbit 
+  (orbit-scene 
    #:universe my-universe
    #:star (basic-star))
   )
@@ -36,14 +36,14 @@
      #:star-size 4
      #:star-texture dragon-image))
   
-  (space-orbit
+  (orbit-scene
    #:universe dragon-universe
    #:star (basic-star))
   )
 
 (define-example-code  
   3d-orbit orbits-4
-  (space-orbit
+  (orbit-scene
    #:start-position (position 0 0 100)
    #:star (basic-star
            #:radius 20))
@@ -52,7 +52,7 @@
 ; ===== STAR & PLANET KATAS
 (define-example-code  
   3d-orbit star-planet-1
-  (space-orbit
+  (orbit-scene
    #:star (basic-star
            #:planets-list (list
                            (basic-planet))))
@@ -74,7 +74,7 @@
      #:planets-list (list
                      my-planet)))
   
-  (space-orbit
+  (orbit-scene
    #:star my-star)
   )
 
@@ -82,15 +82,15 @@
   3d-orbit star-planet-3
   (define changing-planet
     (basic-planet
-     #:texture jupiter-bg
+     #:texture jupiter-tex
      #:on-mouse-enter (do-many
-                       (texture mars-bg))
+                       (texture mars-tex))
      #:on-mouse-leave (do-many
-                       (texture jupiter-bg))))
+                       (texture jupiter-tex))))
     
-  (space-orbit
+  (orbit-scene
    #:star (basic-star
-           #:texture sun-bg
+           #:texture sun-tex
            #:on-mouse-click (do-many
                              (opacity 0.1))
            #:planets-list (list
@@ -104,16 +104,16 @@
     (basic-planet
      #:label "Earth"
      #:label-color 'blue
-     #:texture earth-bg
+     #:texture earth-tex
      #:animations-list (list
                         (y-rotation))))
   
-  (space-orbit
+  (orbit-scene
    #:star (basic-star
            #:animations-list '()
-           #:label "Sun"
+           #:label "Sol"
            #:label-color 'orange
-           #:texture sun-bg
+           #:texture sun-tex
            #:planets-list (list
                            my-planet)))
   )
@@ -125,7 +125,7 @@
     (planet-earth
      #:position (position 230 0 0)))
   
-  (space-orbit
+  (orbit-scene
    #:star (star-sun
            #:show-orbits? #t
            #:planets-list (list
@@ -139,17 +139,17 @@
     (basic-planet
      #:moons-list (list
                    (basic-moon))))
-  (space-orbit
+  (orbit-scene
    #:star (basic-star
            #:planets-list (list
                            planet-with-moon)))
   )
 
 (define-example-code  
-  3d-orbit moon-ring-2
+  3d-orbit moon-ring-3
   (define my-moons
     (list (basic-moon
-           #:texture sun-bg
+           #:texture sun-tex
            #:scale 2)
           (basic-moon
            #:label "This moon grows!"
@@ -158,7 +158,7 @@
            #:on-mouse-leave (do-many
                              (scale 1)))))
   
-  (space-orbit
+  (orbit-scene
    #:star (basic-star
            #:animations-list '()
            #:planets-list (list
@@ -167,7 +167,7 @@
   )
 
 (define-example-code  
-  3d-orbit moon-ring-3
+  3d-orbit moon-ring-2
   (define my-moons
     (list (basic-moon)
           (basic-moon)))
@@ -177,7 +177,7 @@
      #:show-orbits? #t
      #:moons-list my-moons))
   
-  (space-orbit
+  (orbit-scene
    #:star (basic-star
            #:show-orbits? #t
            #:planets-list (list
@@ -191,7 +191,7 @@
      #:rings-list (list
                    (basic-ring))))
   
-  (space-orbit
+  (orbit-scene
    #:star (basic-star
            #:planets-list (list
                            planet-with-ring)))
@@ -205,10 +205,10 @@
       #:color 'red
       #:opacity 0.8)
      (basic-ring
-      #:texture saturnring-bg
+      #:texture saturnring-tex
       #:rotation (rotation 90 0 90))))
   
-  (space-orbit
+  (orbit-scene
    #:star (basic-star
            #:planets-list (list
                            (basic-planet
@@ -218,52 +218,142 @@
 ; ===== SPACE OBJECTS KATAS
 (define-example-code  
   3d-orbit space-objects-1
-  (space-orbit)
+  (define asteroids-list
+    (list (basic-asteroid
+           #:color 'red)
+          (basic-asteroid
+           #:opacity 0.7)
+          (basic-asteroid
+           #:label "Big Rock")))
+  
+  (orbit-scene
+   #:star (basic-star)
+   #:objects-list asteroids-list)
   )
 
 (define-example-code  
   3d-orbit space-objects-2
-  (space-orbit)
-  )
+  (define asteroids-list
+    (list (basic-asteroid
+           #:texture mars-tex)
+          (basic-asteroid
+           #:radius 0.5)
+          (basic-asteroid
+           #:on-mouse-click (do-many (opacity 0)))))
+  
+  (orbit-scene
+   #:star (basic-star
+           #:objects-list asteroids-list))
+   )
 
 (define-example-code  
   3d-orbit space-objects-3
-  (space-orbit)
+  (define my-planet
+    (basic-planet
+     #:objects-list (list
+                     (basic-moon)
+                     (basic-asteroid)
+                     astronaut)))
+  (orbit-scene
+   #:star (basic-star
+           #:planets-list (list
+                           my-planet)))
   )
 
 (define-example-code  
   3d-orbit space-objects-4
-  (space-orbit)
+   (define my-planet
+    (basic-planet
+     #:objects-list (list
+                     (change-scale-by satellite-1 0.5))))
+  (orbit-scene
+   #:star (basic-star
+           #:planets-list (list
+                           my-planet)))
   )
 
 (define-example-code  
   3d-orbit space-objects-5
-  (space-orbit)
+  (define my-moon
+    (basic-moon
+     #:objects-list (list
+                    flying-saucer-1)))
+
+  (define my-planet
+    (basic-planet
+     #:moons-list (list my-moon)))
+  
+  (orbit-scene
+   #:star (basic-star
+           #:planets-list (list my-planet)))
   )
 
 ; ===== STAR SYSTEM KATAS
 (define-example-code  
   3d-orbit star-system-1
-  (space-orbit)
+  (define the-moon
+    (basic-moon
+     #:texture moon-tex
+     #:label "Luna"))
+  
+  (define my-planets
+    (list
+     (basic-planet #:texture mercury-tex
+                   #:label "Mercury")
+     (basic-planet #:texture venus-tex
+                   #:label "Venus")
+     (basic-planet #:texture earth-tex
+                   #:label "Earth"
+                   #:moons-list (list the-moon))
+     (basic-planet #:texture mars-tex
+                   #:label "Mars")))
+  
+  (orbit-scene
+   #:star (basic-star
+           #:texture sun-tex
+           #:label "Sol"
+           #:planets-list my-planets))
   )
 
 (define-example-code  
   3d-orbit star-system-2
-  (space-orbit)
+  (define the-ring
+    (basic-ring #:rotation (rotation 90 0 0)
+                #:texture saturnring-tex
+                #:radius 2
+                #:thicknes 0.5))
+     
+  (define my-planets
+    (list
+     (basic-planet #:texture jupiter-tex
+                   #:label "Jupiter")
+     (basic-planet #:texture saturn-tex
+                   #:label "Saturn"
+                   #:rings-list (list the-ring))
+     (basic-planet #:texture uranus-tex
+                   #:label "Uranus")
+     (basic-planet #:texture neptune-tex
+                   #:label "Neptune")))
+  
+  (orbit-scene
+   #:star (basic-star
+           #:texture sun-tex
+           #:label "Sol"
+           #:planets-list my-planets))
   )
 
 (define-example-code  
   3d-orbit star-system-3
-  (space-orbit)
+  (planets-to-scale)
   )
 
 (define-example-code  
   3d-orbit star-system-4
-  (space-orbit)
+  (solar-system)
   )
 
 (define-example-code  
   3d-orbit star-system-5
-  (space-orbit)
+  (stars-to-scale)
   )
 

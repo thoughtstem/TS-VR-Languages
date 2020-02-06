@@ -16,6 +16,7 @@
          x-rotation
          y-rotation
          z-rotation
+         change-scale-by
 
          basic-universe
          basic-star
@@ -88,6 +89,10 @@
 (define (radius-attribute? attr)
   (is-a? attr radius%))
 
+(define (scale-attribute? attr)
+  (is-a? attr scale%))
+
+
 (define (randomize-position e)
   (define old-attrs (entity-attrs e))
   (define new-attrs (append (list (position (random-float -80 80)
@@ -125,6 +130,20 @@
              0)
           #t
           #f)))
+
+(define (change-scale-by e s)
+  (define old-attrs (entity-attrs e))
+  (define sca-attr (filter scale-attribute? old-attrs))
+  (define sca-xyz (map string->number (string-split (render (first sca-attr)))))
+  (define new-attrs (append (list (if (number? s)
+                                      (scale
+                                       (* s (first  sca-xyz))
+                                       (* s (second sca-xyz))
+                                       (* s (third  sca-xyz)))
+                                      s))
+                            (filter-not scale-attribute? old-attrs)))
+  (update-attributes e new-attrs))
+  
 
 (define (assetize-model e)
   (define old-attrs (entity-attrs e))
@@ -166,7 +185,7 @@
   (map make-orbit posn-str-list xyz-list))
 
 ; ==== SPACE ORBIT =====
-(define/contract/doc (space-orbit #:fly-speed       [speed 750]
+(define/contract/doc (orbit-scene #:fly-speed       [speed 750]
                                   #:fly-mode?       [fly-mode #t]
                                   #:start-position  [start (position 0 1.6 0)]
                                   #:universe        [universe (basic-universe)]
@@ -263,20 +282,20 @@
                     #:rotation        [rota (rotation 0.0 0.0 0.0)]
                     #:scale           [sca (scale 1.0 1.0 1.0)]
                     #:color           [col (color 255 255 255)]
-                    #:texture         [texture (first (shuffle (list (tint-img 'brown sun-bg)
-                                                                     (tint-img 'red sun-bg)
-                                                                     (tint-img 'darkred sun-bg)
-                                                                     (tint-img 'lightred sun-bg)
-                                                                     (tint-img 'orange sun-bg)
-                                                                     (tint-img 'darkorange sun-bg)
-                                                                     (tint-img 'lightorange sun-bg)
-                                                                     (tint-img 'yellow sun-bg)
-                                                                     (tint-img 'darkyellow sun-bg)
-                                                                     (tint-img 'lightyellow sun-bg)
-                                                                     (tint-img 'salmon sun-bg)
-                                                                     (tint-img 'purple sun-bg)
-                                                                     (tint-img 'white sun-bg)
-                                                                     sun-bg)))]
+                    #:texture         [texture (first (shuffle (list (tint-img 'brown sun-tex)
+                                                                     (tint-img 'red sun-tex)
+                                                                     (tint-img 'darkred sun-tex)
+                                                                     (tint-img 'lightred sun-tex)
+                                                                     (tint-img 'orange sun-tex)
+                                                                     (tint-img 'darkorange sun-tex)
+                                                                     (tint-img 'lightorange sun-tex)
+                                                                     (tint-img 'yellow sun-tex)
+                                                                     (tint-img 'darkyellow sun-tex)
+                                                                     (tint-img 'lightyellow sun-tex)
+                                                                     (tint-img 'salmon sun-tex)
+                                                                     (tint-img 'purple sun-tex)
+                                                                     (tint-img 'white sun-tex)
+                                                                     sun-tex)))]
                     #:radius          [r (random 8 15)]
                     #:opacity         [opac 1.0]
                     #:show-orbits?    [orbits? #f]
@@ -289,7 +308,7 @@
                     #:on-mouse-enter  [mouse-enter #f]
                     #:on-mouse-leave  [mouse-leave #f]
                     #:on-mouse-click  [mouse-click #f]
-                    #:components-list [c-list '()])
+                    #:objects-list [c-list '()])
 
   (define label
     (if l
@@ -303,6 +322,25 @@
   (define modified-planets (append (map randomize-xz-posn (filter change-position?
                                                                   p-list))
                                    (filter-not change-position? p-list)))
+
+
+   (define (add-radius e)
+    (define old-attrs (entity-attrs e))
+    (define pos-attr (filter position-attribute? old-attrs))
+    (if (empty? pos-attr)
+        (update-attributes e (append (list (position (+ (random-range 20 50) r)
+                                                     0
+                                                     (+ (random-range 20 50) r)))
+                                     (filter-not position-attribute? old-attrs)))    
+        
+        (update-attributes e (append (list (position (+ (first (map string->number (string-split (render (first pos-attr))))) r)
+                                                     (+ (second (map string->number (string-split (render (first pos-attr))))) r)
+                                                     (+ (third (map string->number (string-split (render (first pos-attr))))) r)))
+                                     (filter-not position-attribute? old-attrs)))    
+        ))
+  
+  (define modified-objects
+    (map add-radius c-list))
     
   
   (basic-sphere #:position        pos
@@ -322,7 +360,7 @@
                                                   (add-orbits p-list "x"))
                                               '())
                                           modified-planets
-                                          c-list
+                                          modified-objects
                                           label)))
 
 (define (basic-ring  #:rotation [rota (rotation 0 0 0)]
@@ -346,15 +384,15 @@
                       #:rotation        [rota (rotation 0.0 0.0 0.0)]
                       #:scale           [sca (scale 1.0 1.0 1.0)]
                       #:color           [col (color 255 255 255)]
-                      #:texture         [texture (first (shuffle (list mercury-bg
-                                                                       venus-bg
-                                                                       earth-bg
-                                                                       earthnight-bg
-                                                                       mars-bg
-                                                                       jupiter-bg
-                                                                       saturn-bg
-                                                                       uranus-bg
-                                                                       neptune-bg)))]
+                      #:texture         [texture (first (shuffle (list mercury-tex
+                                                                       venus-tex
+                                                                       earth-tex
+                                                                       earthnight-tex
+                                                                       mars-tex
+                                                                       jupiter-tex
+                                                                       saturn-tex
+                                                                       uranus-tex
+                                                                       neptune-tex)))]
                       #:radius          [r (random 1 5)]
                       #:opacity         [opac 1.0]
                       #:rings-list      [r-list '()]
@@ -368,7 +406,7 @@
                       #:on-mouse-enter  [mouse-enter #f]
                       #:on-mouse-leave  [mouse-leave #f]
                       #:on-mouse-click  [mouse-click #f]
-                      #:components-list [c-list '()])
+                      #:objects-list    [c-list '()])
 
   (define (adjust-radius e)
     (define old-attrs (entity-attrs e))
@@ -391,6 +429,24 @@
   (define modified-moons (append (map randomize-position (filter change-position?
                                                                  m-list))
                                  (filter-not change-position? m-list)))
+
+   (define (add-radius e)
+    (define old-attrs (entity-attrs e))
+    (define pos-attr (filter position-attribute? old-attrs))
+    (if (empty? pos-attr)
+        (update-attributes e (append (list (position 0
+                                                     (+ (random-range 5 10) r)
+                                                     (+ (random-range 5 10) r)))
+                                     (filter-not position-attribute? old-attrs)))    
+        
+        (update-attributes e (append (list (position (+ (first (map string->number (string-split (render (first pos-attr))))) r)
+                                                     (+ (second (map string->number (string-split (render (first pos-attr))))) r)
+                                                     (+ (third (map string->number (string-split (render (first pos-attr))))) r)))
+                                     (filter-not position-attribute? old-attrs)))    
+        ))
+  
+  (define modified-objects
+    (map add-radius c-list))
     
   (basic-sphere #:position        pos
                 #:rotation        rota
@@ -404,7 +460,7 @@
                 #:on-mouse-leave  mouse-leave
                 #:on-mouse-click  mouse-click
                 #:components-list (append modified-moons
-                                          c-list
+                                          modified-objects
                                           (if (empty? r-list)
                                               '()
                                               (map adjust-radius r-list))
@@ -419,7 +475,7 @@
                     #:rotation        [rota (rotation 0.0 0.0 0.0)]
                     #:scale           [sca (scale 1.0 1.0 1.0)]
                     #:color           [col (color 255 255 255)]
-                    #:texture         [texture moon-bg]
+                    #:texture         [texture moon-tex]
                     #:radius          [r (random-float 0.25 0.75 #:factor 100)]
                     #:opacity         [opac 1.0]
                     #:label           [l #f]
@@ -430,7 +486,7 @@
                     #:on-mouse-enter  [mouse-enter #f]
                     #:on-mouse-leave  [mouse-leave #f]
                     #:on-mouse-click  [mouse-click #f]
-                    #:components-list [c '()])
+                    #:objects-list    [c-list '()])
 
   (define label
     (if l
@@ -440,6 +496,24 @@
                           #:color lc
                           #:baseline 'bottom))
         '()))
+
+   (define (add-radius e)
+    (define old-attrs (entity-attrs e))
+    (define pos-attr (filter position-attribute? old-attrs))
+    (if (empty? pos-attr)
+        (update-attributes e (append (list (position (+ (random-range 1 3) r)
+                                                     0
+                                                     (+ (random-range 1 3) r)))
+                                     (filter-not position-attribute? old-attrs)))    
+        
+        (update-attributes e (append (list (position (+ (first (map string->number (string-split (render (first pos-attr))))) r)
+                                                     (+ (second (map string->number (string-split (render (first pos-attr))))) r)
+                                                     (+ (third (map string->number (string-split (render (first pos-attr))))) r)))
+                                     (filter-not position-attribute? old-attrs)))    
+        ))
+  
+  (define modified-objects
+    (map add-radius c-list))
   
   (basic-sphere #:position        pos
                 #:rotation        rota
@@ -452,17 +526,17 @@
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
                 #:on-mouse-click  mouse-click
-                #:components-list (append c label)))
+                #:components-list (append modified-objects label)))
 
 (define (basic-asteroid #:position        [pos (position 0 (random-range 7 12) (random-range 7 12))]
                         #:rotation        [rota (rotation 0.0 0.0 0.0)]
                         #:scale           [sca (scale 1.0 1.0 1.0)]
                         #:color           [col (color 255 255 255)]
-                        #:texture         [texture (first (shuffle (list (tint-img 'brown asteroid-bg)
-                                                                         (tint-img 'black asteroid-bg)
-                                                                         (tint-img 'grey asteroid-bg)
-                                                                         (tint-img 'white asteroid-bg)
-                                                                         asteroid-bg)))]
+                        #:texture         [texture (first (shuffle (list (tint-img 'brown asteroid-tex)
+                                                                         (tint-img 'black asteroid-tex)
+                                                                         (tint-img 'grey asteroid-tex)
+                                                                         (tint-img 'white asteroid-tex)
+                                                                         asteroid-tex)))]
                         #:radius          [r (random-float 0.1 0.3 #:factor 100)]
                         #:opacity         [opac 1.0]
                         #:label           [l #f]
@@ -473,7 +547,7 @@
                         #:on-mouse-enter  [mouse-enter #f]
                         #:on-mouse-leave  [mouse-leave #f]
                         #:on-mouse-click  [mouse-click #f]
-                        #:components-list [c '()])
+                        #:objects-list    [c-list '()])
 
   (define label
     (if l
@@ -483,6 +557,24 @@
                           #:color lc
                           #:baseline 'bottom))
         '()))
+
+  (define (add-radius e)
+    (define old-attrs (entity-attrs e))
+    (define pos-attr (filter position-attribute? old-attrs))
+    (if (empty? pos-attr)
+        (update-attributes e (append (list (position (+ (random-range 1 3) r)
+                                                     0
+                                                     (+ (random-range 1 3) r)))
+                                     (filter-not position-attribute? old-attrs)))    
+        
+        (update-attributes e (append (list (position (+ (first (map string->number (string-split (render (first pos-attr))))) r)
+                                                     (+ (second (map string->number (string-split (render (first pos-attr))))) r)
+                                                     (+ (third (map string->number (string-split (render (first pos-attr))))) r)))
+                                     (filter-not position-attribute? old-attrs)))    
+        ))
+  
+  (define modified-objects
+    (map add-radius c-list))
   
   (basic-dodecahedron #:position        pos
                       #:rotation        rota
@@ -495,14 +587,14 @@
                       #:on-mouse-enter  mouse-enter
                       #:on-mouse-leave  mouse-leave
                       #:on-mouse-click  mouse-click
-                      #:components-list (append c label)))
+                      #:components-list (append modified-objects label)))
 
 ; ====== SUN AND PLANETS ======
 (define (star-sun #:position        [pos (position 0 0 -250)]
                   #:rotation        [rota (rotation 0.0 0.0 0.0)]
                   #:scale           [sca (scale 1.0 1.0 1.0)]
                   #:color           [col (color 255 255 255)]
-                  #:texture         [texture sun-bg]
+                  #:texture         [texture sun-tex]
                   #:radius          [r 109]
                   #:opacity         [opac 1.0]
                   #:show-orbits?    [orbits? #f]
@@ -514,7 +606,8 @@
                   #:planets-list    [p-list '()]
                   #:on-mouse-enter  [mouse-enter #f]
                   #:on-mouse-leave  [mouse-leave #f]
-                  #:on-mouse-click  [mouse-click #f])
+                  #:on-mouse-click  [mouse-click #f]
+                  #:objects-list    [o-list '()])
   (basic-star #:position        pos
               #:rotation        rota
               #:scale           sca
@@ -531,13 +624,14 @@
               #:planets-list    p-list
               #:on-mouse-enter  mouse-enter
               #:on-mouse-leave  mouse-leave
-              #:on-mouse-click  mouse-click))
+              #:on-mouse-click  mouse-click
+              #:objects-list o-list))
 
 (define (planet-mercury #:position        [pos (position 0 0 2)]
                         #:rotation        [rota (rotation 0.0 0.0 0.0)]
                         #:scale           [sca (scale 1.0 1.0 1.0)]
                         #:color           [col (color 255 255 255)]
-                        #:texture         [texture mercury-bg]
+                        #:texture         [texture mercury-tex]
                         #:radius          [r 0.38]
                         #:opacity         [opac 1.0]
                         #:rings-list      [r-list '()]
@@ -549,7 +643,8 @@
                         #:animations-list [animations-list (do-many (x-rotation))]
                         #:on-mouse-enter  [mouse-enter #f]
                         #:on-mouse-leave  [mouse-leave #f]
-                        #:on-mouse-click  [mouse-click #f])
+                        #:on-mouse-click  [mouse-click #f]
+                        #:objects-list    [o-list '()])
   (basic-planet #:position        pos
                 #:rotation        rota
                 #:scale           sca
@@ -566,13 +661,14 @@
                 #:animations-list animations-list
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
-                #:on-mouse-click  mouse-click))
+                #:on-mouse-click  mouse-click
+                #:objects-list o-list))
 
 (define (planet-venus #:position        [pos (position 0 0 3)]
                       #:rotation        [rota (rotation 0.0 0.0 0.0)]
                       #:scale           [sca (scale 1.0 1.0 1.0)]
                       #:color           [col (color 255 255 255)]
-                      #:texture         [texture venus-bg]
+                      #:texture         [texture venus-tex]
                       #:radius          [r 0.95]
                       #:opacity         [opac 1.0]
                       #:rings-list      [r-list '()]
@@ -584,7 +680,8 @@
                       #:animations-list [animations-list (do-many (x-rotation))]
                       #:on-mouse-enter  [mouse-enter #f]
                       #:on-mouse-leave  [mouse-leave #f]
-                      #:on-mouse-click  [mouse-click #f])
+                      #:on-mouse-click  [mouse-click #f]
+                      #:objects-list    [o-list '()])
   (basic-planet #:position        pos
                 #:rotation        rota
                 #:scale           sca
@@ -601,13 +698,14 @@
                 #:animations-list animations-list
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
-                #:on-mouse-click  mouse-click))
+                #:on-mouse-click  mouse-click
+                #:objects-list o-list))
 
 (define (planet-earth #:position        [pos (position 0 0 3)]
                       #:rotation        [rota (rotation 0.0 0.0 0.0)]
                       #:scale           [sca (scale 1.0 1.0 1.0)]
                       #:color           [col (color 255 255 255)]
-                      #:texture         [texture earth-bg]
+                      #:texture         [texture earth-tex]
                       #:radius          [r 1]
                       #:opacity         [opac 1.0]
                       #:rings-list      [r-list '()]
@@ -619,7 +717,8 @@
                       #:animations-list [animations-list (do-many (x-rotation))]
                       #:on-mouse-enter  [mouse-enter #f]
                       #:on-mouse-leave  [mouse-leave #f]
-                      #:on-mouse-click  [mouse-click #f])
+                      #:on-mouse-click  [mouse-click #f]
+                      #:objects-list    [o-list '()])
   (basic-planet #:position        pos
                 #:rotation        rota
                 #:scale           sca
@@ -636,13 +735,14 @@
                 #:animations-list animations-list
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
-                #:on-mouse-click  mouse-click))
+                #:on-mouse-click  mouse-click
+                #:objects-list o-list))
 
 (define (moon-moon #:position        [pos (position 0 0 2)]
                    #:rotation        [rota (rotation 0.0 0.0 0.0)]
                    #:scale           [sca (scale 1.0 1.0 1.0)]
                    #:color           [col (color 255 255 255)]
-                   #:texture         [texture moon-bg]
+                   #:texture         [texture moon-tex]
                    #:radius          [r 0.27]
                    #:opacity         [opac 1.0]
                    #:label           [l "Moon"]
@@ -653,7 +753,7 @@
                    #:on-mouse-enter  [mouse-enter #f]
                    #:on-mouse-leave  [mouse-leave #f]
                    #:on-mouse-click  [mouse-click #f]
-                   #:components-list [c '()])
+                   #:objects-list    [c '()])
   (basic-moon #:position        pos
               #:rotation        rota
               #:scale           sca
@@ -669,13 +769,13 @@
               #:on-mouse-enter  mouse-enter
               #:on-mouse-leave  mouse-leave
               #:on-mouse-click  mouse-click
-              #:components-list c))
+              #:objects-list    c))
 
 (define (planet-mars #:position        [pos (position 0 0 3)]
                      #:rotation        [rota (rotation 0.0 0.0 0.0)]
                      #:scale           [sca (scale 1.0 1.0 1.0)]
                      #:color           [col (color 255 255 255)]
-                     #:texture         [texture mars-bg]
+                     #:texture         [texture mars-tex]
                      #:radius          [r 0.53]
                      #:opacity         [opac 1.0]
                      #:rings-list      [r-list '()]
@@ -687,7 +787,8 @@
                      #:animations-list [animations-list (do-many (x-rotation))]
                      #:on-mouse-enter  [mouse-enter #f]
                      #:on-mouse-leave  [mouse-leave #f]
-                     #:on-mouse-click  [mouse-click #f])
+                     #:on-mouse-click  [mouse-click #f]
+                     #:objects-list    [o-list '()])
   (basic-planet #:position        pos
                 #:rotation        rota
                 #:scale           sca
@@ -704,13 +805,14 @@
                 #:animations-list animations-list
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
-                #:on-mouse-click  mouse-click))
+                #:on-mouse-click  mouse-click
+                #:objects-list o-list))
 
 (define (planet-jupiter #:position        [pos (position 0 0 23)]
                         #:rotation        [rota (rotation 0.0 0.0 0.0)]
                         #:scale           [sca (scale 1.0 1.0 1.0)]
                         #:color           [col (color 255 255 255)]
-                        #:texture         [texture jupiter-bg]
+                        #:texture         [texture jupiter-tex]
                         #:radius          [r 11.19]
                         #:opacity         [opac 1.0]
                         #:rings-list      [r-list '()]
@@ -722,7 +824,8 @@
                         #:animations-list [animations-list (do-many (x-rotation))]
                         #:on-mouse-enter  [mouse-enter #f]
                         #:on-mouse-leave  [mouse-leave #f]
-                        #:on-mouse-click  [mouse-click #f])
+                        #:on-mouse-click  [mouse-click #f]
+                        #:objects-list    [o-list '()])
   (basic-planet #:position        pos
                 #:rotation        rota
                 #:scale           sca
@@ -739,25 +842,26 @@
                 #:animations-list animations-list
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
-                #:on-mouse-click  mouse-click))
+                #:on-mouse-click  mouse-click
+                #:objects-list o-list))
 
 (define (planet-saturn #:position        [pos (position 0 0 21)]
                        #:rotation        [rota (rotation 0.0 0.0 0.0)]
                        #:scale           [sca (scale 1.0 1.0 1.0)]
                        #:color           [col (color 255 255 255)]
-                       #:texture         [texture saturn-bg]
+                       #:texture         [texture saturn-tex]
                        #:radius          [r 9.4]
                        #:opacity         [opac 1.0]
                        #:rings-list      [r-list (list (basic-ring #:rotation (rotation 45 90 0)
-                                                                   #:texture saturnring-bg
+                                                                   #:texture saturnring-tex
                                                                    #:radius 1.6
                                                                    #:thicknes 0.45)
                                                        (basic-ring #:rotation (rotation 45 90 0)
-                                                                   #:texture saturnring-bg
+                                                                   #:texture saturnring-tex
                                                                    #:radius 2.6
                                                                    #:thicknes 0.45)
                                                        (basic-ring #:rotation (rotation 45 90 0)
-                                                                   #:texture saturnring-bg
+                                                                   #:texture saturnring-tex
                                                                    #:radius 3.6
                                                                    #:thicknes 0.45))]
                        #:moons-list      [m-list '()]
@@ -768,7 +872,8 @@
                        #:animations-list [animations-list (do-many (x-rotation))]
                        #:on-mouse-enter  [mouse-enter #f]
                        #:on-mouse-leave  [mouse-leave #f]
-                       #:on-mouse-click  [mouse-click #f])
+                       #:on-mouse-click  [mouse-click #f]
+                       #:objects-list    [o-list '()])
   (basic-planet #:position        pos
                 #:rotation        rota
                 #:scale           sca
@@ -785,13 +890,14 @@
                 #:animations-list animations-list
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
-                #:on-mouse-click  mouse-click))
+                #:on-mouse-click  mouse-click
+                #:objects-list o-list))
 
 (define (planet-uranus #:position        [pos (position 0 0 9)]
                        #:rotation        [rota (rotation 0.0 0.0 0.0)]
                        #:scale           [sca (scale 1.0 1.0 1.0)]
                        #:color           [col (color 255 255 255)]
-                       #:texture         [texture uranus-bg]
+                       #:texture         [texture uranus-tex]
                        #:radius          [r 4.04]
                        #:opacity         [opac 1.0]
                        #:rings-list      [r-list '()]
@@ -803,7 +909,8 @@
                        #:animations-list [animations-list (do-many (x-rotation))]
                        #:on-mouse-enter  [mouse-enter #f]
                        #:on-mouse-leave  [mouse-leave #f]
-                       #:on-mouse-click  [mouse-click #f])
+                       #:on-mouse-click  [mouse-click #f]
+                       #:objects-list    [o-list '()])
   (basic-planet #:position        pos
                 #:rotation        rota
                 #:scale           sca
@@ -820,13 +927,14 @@
                 #:animations-list animations-list
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
-                #:on-mouse-click  mouse-click))
+                #:on-mouse-click  mouse-click
+                #:objects-list o-list))
 
 (define (planet-neptune #:position        [pos (position 0 0 9)]
                         #:rotation        [rota (rotation 0.0 0.0 0.0)]
                         #:scale           [sca (scale 1.0 1.0 1.0)]
                         #:color           [col (color 255 255 255)]
-                        #:texture         [texture neptune-bg]
+                        #:texture         [texture neptune-tex]
                         #:radius          [r 3.88]
                         #:opacity         [opac 1.0]
                         #:rings-list      [r-list '()]
@@ -838,7 +946,8 @@
                         #:animations-list [animations-list (do-many (x-rotation))]
                         #:on-mouse-enter  [mouse-enter #f]
                         #:on-mouse-leave  [mouse-leave #f]
-                        #:on-mouse-click  [mouse-click #f])
+                        #:on-mouse-click  [mouse-click #f]
+                        #:objects-list    [o-list '()])
   (basic-planet #:position        pos
                 #:rotation        rota
                 #:scale           sca
@@ -855,12 +964,13 @@
                 #:animations-list animations-list
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
-                #:on-mouse-click  mouse-click))
+                #:on-mouse-click  mouse-click
+                #:objects-list o-list))
 
 ; ===== PLANETS TO SCALE =====
 ; RADIUS: earth = 1 unit
 (define (planets-to-scale)
-  (space-orbit
+  (orbit-scene
    #:fly-speed 1000
    #:universe (basic-universe #:star-depth 500
                               #:star-radius 400)
@@ -890,7 +1000,7 @@
 ;Planets 100x smaller
 ;Sun      10x bigger
 (define (solar-system)
-  (space-orbit
+  (orbit-scene
    #:fly-speed 1000
    #:universe (basic-universe #:star-depth 5000
                               #:star-radius 5000
@@ -919,14 +1029,14 @@
                                                          #:radius 2.013)))))
 
 (define (stars-to-scale)
-  (space-orbit
+  (orbit-scene
    #:start-position (position 250 50 275)
    #:universe (basic-universe #:star-depth 1200
                               #:star-radius 1200
                               #:star-size 2)
    #:objects-list (list (basic-star #:position (position 0 0 -250)
                                     #:radius .1
-                                    #:texture sun-bg
+                                    #:texture sun-tex
                                     #:label "Sun")
                         ;proximacentauri 0.1542 -- nearest star to the sun
                         (basic-star #:position (position (+ .1 0.015) 0 -250)
