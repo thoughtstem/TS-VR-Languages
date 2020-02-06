@@ -16,7 +16,8 @@
          x-rotation
          y-rotation
          z-rotation
-         change-scale-by
+         scale-object
+         tilt
 
          basic-universe
          basic-star
@@ -92,6 +93,8 @@
 (define (scale-attribute? attr)
   (is-a? attr scale%))
 
+(define (tilt x y z)
+  (rotation x y z))
 
 (define (randomize-position e)
   (define old-attrs (entity-attrs e))
@@ -131,7 +134,7 @@
           #t
           #f)))
 
-(define (change-scale-by e s)
+(define (scale-object s e)
   (define old-attrs (entity-attrs e))
   (define sca-attr (filter scale-attribute? old-attrs))
   (define sca-xyz (map string->number (string-split (render (first sca-attr)))))
@@ -163,10 +166,10 @@
 
 (define (make-orbit l xyz)
   (define n-list (map string->number l))
-  (basic-ring #:rotation (cond
-                           [(equal? "x" xyz) (rotation 90 0 0)]
-                           [(equal? "y" xyz) (rotation 0 90 0)]
-                           [(equal? "z" xyz) (rotation 0 0 90)])
+  (basic-ring #:tilt (cond
+                       [(equal? "x" xyz) (rotation 90 0 0)]
+                       [(equal? "y" xyz) (rotation 0 90 0)]
+                       [(equal? "z" xyz) (rotation 0 0 90)])
               #:radius (get-distance (position (first n-list)
                                                (second n-list)
                                                (third n-list))
@@ -363,13 +366,13 @@
                                           modified-objects
                                           label)))
 
-(define (basic-ring  #:rotation [rota (rotation 0 0 0)]
+(define (basic-ring  #:tilt     [tilt (rotation 0 0 0)]
                      #:radius   [rad (random-float 0.25 1.5 #:factor 100)]
                      #:thicknes [rt (random-float 0.015 0.05 #:factor 1000)]
                      #:opacity  [opa (random-float 0.25 1.0 #:factor 100)]
                      #:color    [c (random-color)]
                      #:texture  [texture #f])
-  (basic-torus #:rotation       rota
+  (basic-torus #:rotation       tilt
                #:radius         rad
                #:radius-tubular rt
                #:opacity        (if texture
@@ -852,15 +855,15 @@
                        #:texture         [texture saturn-tex]
                        #:radius          [r 9.4]
                        #:opacity         [opac 1.0]
-                       #:rings-list      [r-list (list (basic-ring #:rotation (rotation 45 90 0)
+                       #:rings-list      [r-list (list (basic-ring #:tilt (rotation 45 90 0)
                                                                    #:texture saturnring-tex
                                                                    #:radius 1.6
                                                                    #:thicknes 0.45)
-                                                       (basic-ring #:rotation (rotation 45 90 0)
+                                                       (basic-ring #:tilt (rotation 45 90 0)
                                                                    #:texture saturnring-tex
                                                                    #:radius 2.6
                                                                    #:thicknes 0.45)
-                                                       (basic-ring #:rotation (rotation 45 90 0)
+                                                       (basic-ring #:tilt (rotation 45 90 0)
                                                                    #:texture saturnring-tex
                                                                    #:radius 3.6
                                                                    #:thicknes 0.45))]

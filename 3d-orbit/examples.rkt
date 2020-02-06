@@ -11,14 +11,14 @@
 ; ===== SPACE ORBIT KATAS
 
 (define-example-code  
-  3d-orbit orbits-1
+  3d-orbit orbit-1
   (orbit-scene
    #:fly-speed 1000
    #:star (basic-star))
   )
 
 (define-example-code  
-  3d-orbit orbits-2
+  3d-orbit orbit-2
   (define my-universe
     (basic-universe
      #:universe-color 'blue
@@ -30,7 +30,7 @@
   )
 
 (define-example-code  
-  3d-orbit orbits-3
+  3d-orbit orbit-3
   (define dragon-universe
     (basic-universe
      #:star-size 4
@@ -42,7 +42,7 @@
   )
 
 (define-example-code  
-  3d-orbit orbits-4
+  3d-orbit orbit-4
   (orbit-scene
    #:start-position (position 0 0 100)
    #:star (basic-star
@@ -51,7 +51,7 @@
 
 ; ===== STAR & PLANET KATAS
 (define-example-code  
-  3d-orbit star-planet-1
+  3d-orbit star-and-planet-1
   (orbit-scene
    #:star (basic-star
            #:planets-list (list
@@ -59,7 +59,7 @@
   )
 
 (define-example-code  
-  3d-orbit star-planet-2
+  3d-orbit star-and-planet-2
   (define my-planet
     (basic-planet
      #:radius 5
@@ -79,7 +79,7 @@
   )
 
 (define-example-code  
-  3d-orbit star-planet-3
+  3d-orbit star-and-planet-3
   (define changing-planet
     (basic-planet
      #:texture jupiter-tex
@@ -99,7 +99,7 @@
   
 
 (define-example-code  
-  3d-orbit star-planet-4
+  3d-orbit star-and-planet-4
   (define my-planet
     (basic-planet
      #:label "Earth"
@@ -134,7 +134,7 @@
 
 ; ===== MOON & RING KATAS
 (define-example-code  
-  3d-orbit moon-ring-1
+  3d-orbit moon-and-ring-1
   (define planet-with-moon
     (basic-planet
      #:moons-list (list
@@ -146,7 +146,25 @@
   )
 
 (define-example-code  
-  3d-orbit moon-ring-3
+  3d-orbit moon-and-ring-2
+  (define my-moons
+    (list (basic-moon)
+          (basic-moon)))
+  
+  (define the-planet
+    (basic-planet
+     #:show-orbits? #t
+     #:moons-list my-moons))
+  
+  (orbit-scene
+   #:star (basic-star
+           #:show-orbits? #t
+           #:planets-list (list
+                           the-planet)))
+  )
+
+(define-example-code  
+  3d-orbit moon-and-ring-3
   (define my-moons
     (list (basic-moon
            #:texture sun-tex
@@ -167,25 +185,7 @@
   )
 
 (define-example-code  
-  3d-orbit moon-ring-2
-  (define my-moons
-    (list (basic-moon)
-          (basic-moon)))
-  
-  (define the-planet
-    (basic-planet
-     #:show-orbits? #t
-     #:moons-list my-moons))
-  
-  (orbit-scene
-   #:star (basic-star
-           #:show-orbits? #t
-           #:planets-list (list
-                           the-planet)))
-  )
-
-(define-example-code  
-  3d-orbit moon-ring-4
+  3d-orbit moon-and-ring-4
   (define planet-with-ring
     (basic-planet
      #:rings-list (list
@@ -198,7 +198,7 @@
   )
 
 (define-example-code  
-  3d-orbit moon-ring-5
+  3d-orbit moon-and-ring-5
   (define (my-rings)
     (list
      (basic-ring
@@ -265,7 +265,7 @@
    (define my-planet
     (basic-planet
      #:objects-list (list
-                     (change-scale-by satellite-1 0.5))))
+                     (scale-object 0.5 satellite-1))))
   (orbit-scene
    #:star (basic-star
            #:planets-list (list
@@ -304,9 +304,7 @@
                    #:label "Venus")
      (basic-planet #:texture earth-tex
                    #:label "Earth"
-                   #:moons-list (list the-moon))
-     (basic-planet #:texture mars-tex
-                   #:label "Mars")))
+                   #:moons-list (list the-moon))))
   
   (orbit-scene
    #:star (basic-star
@@ -329,11 +327,7 @@
                    #:label "Jupiter")
      (basic-planet #:texture saturn-tex
                    #:label "Saturn"
-                   #:rings-list (list the-ring))
-     (basic-planet #:texture uranus-tex
-                   #:label "Uranus")
-     (basic-planet #:texture neptune-tex
-                   #:label "Neptune")))
+                   #:rings-list (list the-ring))))
   
   (orbit-scene
    #:star (basic-star
