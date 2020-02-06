@@ -206,7 +206,7 @@
       #:opacity 0.8)
      (basic-ring
       #:texture saturnring-tex
-      #:rotation (rotation 90 0 90))))
+      #:tilt (tilt 90 0 90))))
   
   (orbit-scene
    #:star (basic-star
@@ -262,7 +262,7 @@
 
 (define-example-code  
   3d-orbit space-objects-4
-   (define my-planet
+  (define my-planet
     (basic-planet
      #:objects-list (list
                      (scale-object 0.5 satellite-1))))
@@ -338,16 +338,48 @@
 
 (define-example-code  
   3d-orbit star-system-3
-  (planets-to-scale)
+  (define my-planets
+    (list (basic-planet
+           #:texture brick-tex
+           #:label "Brick World")
+          (basic-planet
+           #:texture steel-tex
+           #:label "Steel World")))
+    
+  (orbit-scene
+   #:star (basic-star
+           #:planets-list my-planets))
   )
 
 (define-example-code  
   3d-orbit star-system-4
-  (solar-system)
+  (define moon-planet
+    (basic-planet
+     #:moons-list (list (basic-moon
+                         #:texture black-tex))))
+
+  (define ring-planet
+    (basic-planet
+     #:rings-list (list (basic-ring
+                         #:texture pink-tex))))
+    
+  (orbit-scene
+   #:star (basic-star
+           #:planets-list (list moon-planet
+                                ring-planet)))
   )
 
 (define-example-code  
   3d-orbit star-system-5
-  (stars-to-scale)
+  (define my-planet
+    (basic-planet
+     #:texture purple-tex))
+  
+  (orbit-scene
+   #:star (basic-star
+           #:planets-list (list my-planet))
+   #:objects-list (list international-space-station
+                        space-shuttle
+                        asteroids))
   )
 

@@ -366,7 +366,7 @@
                                           modified-objects
                                           label)))
 
-(define (basic-ring  #:tilt     [tilt (rotation 0 0 0)]
+(define (basic-ring  #:tilt     [tilt (tilt 0 0 0)]
                      #:radius   [rad (random-float 0.25 1.5 #:factor 100)]
                      #:thicknes [rt (random-float 0.015 0.05 #:factor 1000)]
                      #:opacity  [opa (random-float 0.25 1.0 #:factor 100)]
@@ -855,15 +855,15 @@
                        #:texture         [texture saturn-tex]
                        #:radius          [r 9.4]
                        #:opacity         [opac 1.0]
-                       #:rings-list      [r-list (list (basic-ring #:tilt (rotation 45 90 0)
+                       #:rings-list      [r-list (list (basic-ring #:tilt (tilt 45 90 0)
                                                                    #:texture saturnring-tex
                                                                    #:radius 1.6
                                                                    #:thicknes 0.45)
-                                                       (basic-ring #:tilt (rotation 45 90 0)
+                                                       (basic-ring #:tilt (tilt 45 90 0)
                                                                    #:texture saturnring-tex
                                                                    #:radius 2.6
                                                                    #:thicknes 0.45)
-                                                       (basic-ring #:tilt (rotation 45 90 0)
+                                                       (basic-ring #:tilt (tilt 45 90 0)
                                                                    #:texture saturnring-tex
                                                                    #:radius 3.6
                                                                    #:thicknes 0.45))]
