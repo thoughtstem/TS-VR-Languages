@@ -6,11 +6,11 @@
 @require[@for-label[@;"../main.rkt"
                     racket/base]]
 
-@title{3d-exploration}
+@title{3d-orbit}
 @author{thoughtstem}
-@defmodulelang[3d-exploration]
+@defmodulelang[3d-orbit]
 
-This language allows the user to create 3D Explorable Worlds.
+This language allows the user to create 3D Orbits.
 
 @table-of-contents[]
 

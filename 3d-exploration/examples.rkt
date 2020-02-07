@@ -275,9 +275,9 @@
   (define (earth)
     (basic-sphere
      #:position (position 25 0 0)    
-     #:texture earth-bg))
+     #:texture earth-tex))
   (define (sun)
-    (basic-sphere #:texture sun-bg
+    (basic-sphere #:texture sun-tex
                   #:radius 5
                   #:animations-list (do-many
                                      (animate-rotation))
