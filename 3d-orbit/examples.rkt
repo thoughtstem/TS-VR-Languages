@@ -120,7 +120,7 @@
 
 ;Earth is 100x furter, change the 230 to 23000
 (define-example-code  
-  3d-orbit star-planet-5
+  3d-orbit star-and-planet-5
   (define the-earth
     (planet-earth
      #:position (position 230 0 0)))
@@ -234,12 +234,14 @@
 (define-example-code  
   3d-orbit space-objects-2
   (define asteroids-list
-    (list (basic-asteroid
-           #:texture mars-tex)
-          (basic-asteroid
-           #:radius 0.5)
-          (basic-asteroid
-           #:on-mouse-click (do-many (opacity 0)))))
+    (list
+     (basic-asteroid
+      #:texture mars-tex)
+     (basic-asteroid
+      #:radius 0.5)
+     (basic-asteroid
+      #:on-mouse-click (do-many
+                        (opacity 0)))))
   
   (orbit-scene
    #:star (basic-star
@@ -355,18 +357,21 @@
   3d-orbit star-system-4
   (define moon-planet
     (basic-planet
-     #:moons-list (list (basic-moon
-                         #:texture black-tex))))
+     #:moons-list (list
+                   (basic-moon
+                    #:texture black-tex))))
 
   (define ring-planet
     (basic-planet
-     #:rings-list (list (basic-ring
-                         #:texture pink-tex))))
+     #:rings-list (list
+                   (basic-ring
+                    #:texture pink-tex))))
     
   (orbit-scene
    #:star (basic-star
-           #:planets-list (list moon-planet
-                                ring-planet)))
+           #:planets-list (list
+                           moon-planet
+                           ring-planet)))
   )
 
 (define-example-code  
@@ -377,7 +382,8 @@
   
   (orbit-scene
    #:star (basic-star
-           #:planets-list (list my-planet))
+           #:planets-list (list my-planet
+                                my-planet))
    #:objects-list (list international-space-station
                         space-shuttle
                         asteroids))
