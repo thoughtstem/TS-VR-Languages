@@ -321,7 +321,7 @@
     (basic-ring #:rotation (rotation 90 0 0)
                 #:texture saturnring-tex
                 #:radius 2
-                #:thicknes 0.5))
+                #:thickness 0.5))
      
   (define my-planets
     (list

@@ -181,7 +181,7 @@
                                                (second n-list)
                                                (third n-list))
                                      (position 0 0 0))
-              #:thicknes 0.05
+              #:thickness 0.05
               #:opacity 1.0
               #:color 'white))
 
@@ -383,7 +383,7 @@
 
 (define (basic-ring  #:tilt     [tilt (tilt 0 0 0)]
                      #:radius   [rad (random-float 0.25 1.5 #:factor 100)]
-                     #:thicknes [rt ;(random-float 0.015 0.05 #:factor 1000)
+                     #:thicknesst [rt ;(random-float 0.015 0.05 #:factor 1000)
                                     (random-float 0.2 2.0 #:factor 1000)
                                  ]
                      #:opacity  [opa (random-float 0.25 1.0 #:factor 100)]
@@ -910,15 +910,15 @@
                        #:rings-list      [r-list (list (basic-ring #:tilt (tilt 45 90 0)
                                                                    #:texture saturnring-tex
                                                                    #:radius 1.6
-                                                                   #:thicknes 0.45)
+                                                                   #:thickness 0.45)
                                                        (basic-ring #:tilt (tilt 45 90 0)
                                                                    #:texture saturnring-tex
                                                                    #:radius 2.6
-                                                                   #:thicknes 0.45)
+                                                                   #:thickness 0.45)
                                                        (basic-ring #:tilt (tilt 45 90 0)
                                                                    #:texture saturnring-tex
                                                                    #:radius 3.6
-                                                                   #:thicknes 0.45))]
+                                                                   #:thickness 0.45))]
                        #:moons-list      [m-list '()]
                        #:label           [l "Saturn"]
                        #:label-color     [lc 'white]
