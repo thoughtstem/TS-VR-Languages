@@ -5,6 +5,7 @@
 
 (require (except-in vr-engine
                     basic-ring)
+         (prefix-in vr: (only-in vr-engine basic-ring))
          "../assets.rkt"
          image-coloring
          ts-kata-util)
@@ -89,6 +90,12 @@
 
 (define (radius-attribute? attr)
   (is-a? attr radius%))
+
+(define (radius-inner-attribute? attr)
+  (is-a? attr radius-inner%))
+
+(define (radius-outer-attribute? attr)
+  (is-a? attr radius-outer%))
 
 (define (scale-attribute? attr)
   (is-a? attr scale%))
@@ -252,6 +259,9 @@
                                    (filter-not change-position? all-objects)))
   
   (vr-scene universe
+            (light #:components-list (list (type "ambient")
+                                           (color "#BBBBBB")
+                                           (intensity 0.2)))
             (basic-camera #:position start
                           #:fly? fly-mode
                           #:acceleration speed
@@ -351,6 +361,7 @@
                 #:scale           sca
                 #:color           col
                 #:texture         texture
+                #:shader          "flat"
                 #:radius          r
                 #:opacity         opac
                 #:animations-list animations-list
@@ -364,15 +375,21 @@
                                               '())
                                           modified-planets
                                           modified-objects
-                                          label)))
+                                          label
+                                          (list (light #:components-list (list (type "point")
+                                                                         (intensity 2.0)
+                                                                         (distance 140.0))))
+                                          )))
 
 (define (basic-ring  #:tilt     [tilt (tilt 0 0 0)]
                      #:radius   [rad (random-float 0.25 1.5 #:factor 100)]
-                     #:thicknes [rt (random-float 0.015 0.05 #:factor 1000)]
+                     #:thicknes [rt ;(random-float 0.015 0.05 #:factor 1000)
+                                    (random-float 0.2 2.0 #:factor 1000)
+                                 ]
                      #:opacity  [opa (random-float 0.25 1.0 #:factor 100)]
                      #:color    [c (random-color)]
                      #:texture  [texture #f])
-  (basic-torus #:rotation       tilt
+  #;(basic-torus #:rotation       tilt
                #:radius         rad
                #:radius-tubular rt
                #:opacity        (if texture
@@ -381,7 +398,22 @@
                #:color          (if texture
                                     'white
                                     c)
-               #:texture        texture))
+               #:texture        (if texture
+                                    texture
+                                    ""))
+  (vr:basic-ring #:rotation tilt
+              #:radius-inner (- rad (/ rt 2))
+              #:radius-outer (+ rad (/ rt 2))
+              #:opacity        (if texture
+                                    1.0
+                                    opa)
+              #:color          (if texture
+                                    'white
+                                    c)
+              #:texture        (if texture
+                                    texture
+                                    ""))
+  )
 
 (define (basic-planet #:position        [pos (position (random-range 25 75) 0 (random-range 25 75))]
                       #:rotation        [rota (rotation 0.0 0.0 0.0)]
@@ -413,11 +445,31 @@
 
   (define (adjust-radius e)
     (define old-attrs (entity-attrs e))
-    (define (filter-radius-from e)
+
+    #|(define (filter-radius-from e)
       (filter radius-attribute? (entity-attrs e)))
+    
     (define old-r (string->number (render (first (filter-radius-from e)))))
+    
     (define new-attrs (append (list (radius (+ r  old-r)))
-                              (filter-not radius-attribute? old-attrs)))
+                              (filter-not radius-attribute? old-attrs)))|#
+    
+    (define (filter-radius-inner-from e)
+      (filter radius-inner-attribute? (entity-attrs e)))
+    (define (filter-radius-outer-from e)
+      (filter radius-outer-attribute? (entity-attrs e)))
+
+    (define old-radius-inner
+      (string->number (render (first (filter-radius-inner-from e)))))
+    (define old-radius-outer
+      (string->number (render (first (filter-radius-outer-from e)))))
+
+    (define new-attrs (append (list (radius-inner (+ r old-radius-inner))
+                                    (radius-outer (+ r old-radius-outer)))
+                              (filter-not (or/c radius-inner-attribute?
+                                                radius-outer-attribute?)
+                                                old-attrs)))
+      
     (update-attributes e new-attrs))
 
   (define label
