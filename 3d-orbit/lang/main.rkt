@@ -183,7 +183,9 @@
                                      (position 0 0 0))
               #:thickness 0.05
               #:opacity 1.0
-              #:color 'white))
+              #:color 'white
+              #:shader "flat"
+              ))
 
   
 (define (add-orbits a-list xyz)
@@ -197,7 +199,7 @@
 ; ==== SPACE ORBIT =====
 (define/contract/doc (orbit-scene #:fly-speed       [speed 750]
                                   #:fly-mode?       [fly-mode #t]
-                                  #:start-position  [start (position 0 1.6 0)]
+                                  #:start-position  [start (position 0 1.6 30)]
                                   #:universe        [universe (basic-universe)]
                                   #:star            [star '()]
                                   ;#:planets         [planets '()]
@@ -291,7 +293,7 @@
                      #:star-size size
                      #:texture   texture)))
                 
-(define (basic-star #:position        [pos (position 0 0 -30)]
+(define (basic-star #:position        [pos (position 0 0 0)]
                     #:rotation        [rota (rotation 0.0 0.0 0.0)]
                     #:scale           [sca (scale 1.0 1.0 1.0)]
                     #:color           [col (color 255 255 255)]
@@ -378,7 +380,7 @@
                                           label
                                           (list (light #:components-list (list (type "point")
                                                                          (intensity 2.0)
-                                                                         (distance 140.0))))
+                                                                         (distance 200.0))))
                                           )))
 
 (define (basic-ring  #:tilt      [tilt (tilt 0 0 0)]
@@ -387,7 +389,8 @@
                                     (random-float 0.2 2.0 #:factor 1000)]
                      #:opacity   [opa (random-float 0.25 1.0 #:factor 100)]
                      #:color     [c (random-color)]
-                     #:texture   [texture #f])
+                     #:texture   [texture #f]
+                     #:shader    [sha "standard"])
   #;(basic-torus #:rotation       tilt
                #:radius         rad
                #:radius-tubular rt
@@ -401,8 +404,8 @@
                                     texture
                                     ""))
   (vr:basic-ring #:rotation tilt
-              #:radius-inner (- rad (/ rt 2))
-              #:radius-outer (+ rad (/ rt 2))
+              #:radius-inner (- rad (/ rt 2.0))
+              #:radius-outer (+ rad (/ rt 2.0))
               #:opacity        (if texture
                                     1.0
                                     opa)
@@ -411,7 +414,8 @@
                                     c)
               #:texture        (if texture
                                     texture
-                                    ""))
+                                    "")
+              #:shader         sha)
   )
 
 (define (basic-planet #:position        [pos (position (random-range 25 75) 0 (random-range 25 75))]
