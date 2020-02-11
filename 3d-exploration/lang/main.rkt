@@ -39,7 +39,7 @@
         #:rest          [more-objects any/c]
        [returns any/c])
 
-    @{The top-level function for the 3d-explotation languag.
+    @{The top-level function for the 3d-exploration language.
          Can be run with no parameters to get a basic, default explorable world.}
   
   (define (randomize-sky-position e)
