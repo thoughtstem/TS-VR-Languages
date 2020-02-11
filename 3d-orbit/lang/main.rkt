@@ -389,7 +389,7 @@
                      #:thickness [rt ;(random-float 0.015 0.05 #:factor 1000)
                                     (random-float 0.2 2.0 #:factor 1000)]
                      #:opacity   [opa (random-float 0.25 1.0 #:factor 100)]
-                     #:color     [c (random-color)]
+                     #:color     [c #f ]
                      #:texture   [texture #f]
                      #:shader    [sha "standard"])
   #;(basic-torus #:rotation       tilt
@@ -408,9 +408,9 @@
               #:radius-inner (- rad (/ rt 2.0))
               #:radius-outer (+ rad (/ rt 2.0))
               #:opacity        opa
-              #:color          (if texture
-                                    'white
-                                    c)
+              #:color          (cond [c c]
+                                     [texture 'white]
+                                     [else (random-color)])
               #:texture        (if texture
                                     texture
                                     "")
