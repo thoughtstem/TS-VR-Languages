@@ -312,6 +312,7 @@
                                                                      (tint-img 'white sun-tex)
                                                                      sun-tex)))]
                     #:radius          [r (random 8 15)]
+                    #:light-distance  [ld (* r 35.0)]
                     #:opacity         [opac 1.0]
                     #:show-orbits?    [orbits? #f]
                     #:label           [l #f]
@@ -379,8 +380,8 @@
                                           modified-objects
                                           label
                                           (list (light #:components-list (list (type "point")
-                                                                         (intensity 2.0)
-                                                                         (distance 200.0))))
+                                                                         (intensity 1.2)
+                                                                         (distance ld))))
                                           )))
 
 (define (basic-ring  #:tilt      [tilt (tilt 0 0 0)]
@@ -652,6 +653,7 @@
                   #:color           [col (color 255 255 255)]
                   #:texture         [texture sun-tex]
                   #:radius          [r 109]
+                  #:light-distance  [ld (* r 35.0)]
                   #:opacity         [opac 1.0]
                   #:show-orbits?    [orbits? #f]
                   #:label           [l "Sun"]
@@ -670,6 +672,7 @@
               #:color           col
               #:texture         texture
               #:radius          r
+              #:light-distance  ld
               #:opacity         opac
               #:show-orbits?    orbits?
               #:label           l
@@ -906,17 +909,22 @@
                        #:scale           [sca (scale 1.0 1.0 1.0)]
                        #:color           [col (color 255 255 255)]
                        #:texture         [texture saturn-tex]
-                       #:radius          [r 9.4]
+                       #:radius          [r 9.4] ; 5
                        #:opacity         [opac 1.0]
                        #:rings-list      [r-list (list (basic-ring #:tilt (tilt 45 90 0)
+                                                                   #:opacity 0.8
+                                                                   #:texture saturnring-tex
+                                                                   #:radius (- (* r 1.55) r) ;0.5
+                                                                   #:thickness (* r 0.9)) ; 3.5
+                                                       #;(basic-ring #:tilt (tilt 45 90 0)
                                                                    #:texture saturnring-tex
                                                                    #:radius 1.6
                                                                    #:thickness 0.45)
-                                                       (basic-ring #:tilt (tilt 45 90 0)
+                                                       #;(basic-ring #:tilt (tilt 45 90 0)
                                                                    #:texture saturnring-tex
                                                                    #:radius 2.6
                                                                    #:thickness 0.45)
-                                                       (basic-ring #:tilt (tilt 45 90 0)
+                                                       #;(basic-ring #:tilt (tilt 45 90 0)
                                                                    #:texture saturnring-tex
                                                                    #:radius 3.6
                                                                    #:thickness 0.45))]
@@ -1063,6 +1071,7 @@
                               #:star-size 2)
    #:star (star-sun #:position (position 0 0 -50)
                     #:radius 5.762
+                    #:light-distance 4000
                     #:show-orbits? #t
                     #:planets-list (list (planet-mercury #:position (position 48 0 0)
                                                          #:radius 0.202)
