@@ -406,9 +406,7 @@
   (vr:basic-ring #:rotation tilt
               #:radius-inner (- rad (/ rt 2.0))
               #:radius-outer (+ rad (/ rt 2.0))
-              #:opacity        (if texture
-                                    1.0
-                                    opa)
+              #:opacity        opa
               #:color          (if texture
                                     'white
                                     c)
