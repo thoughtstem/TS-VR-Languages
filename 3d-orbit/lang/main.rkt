@@ -381,14 +381,13 @@
                                                                          (distance 140.0))))
                                           )))
 
-(define (basic-ring  #:tilt     [tilt (tilt 0 0 0)]
-                     #:radius   [rad (random-float 0.25 1.5 #:factor 100)]
-                     #:thicknesst [rt ;(random-float 0.015 0.05 #:factor 1000)
-                                    (random-float 0.2 2.0 #:factor 1000)
-                                 ]
-                     #:opacity  [opa (random-float 0.25 1.0 #:factor 100)]
-                     #:color    [c (random-color)]
-                     #:texture  [texture #f])
+(define (basic-ring  #:tilt      [tilt (tilt 0 0 0)]
+                     #:radius    [rad (random-float 0.25 1.5 #:factor 100)]
+                     #:thickness [rt ;(random-float 0.015 0.05 #:factor 1000)
+                                    (random-float 0.2 2.0 #:factor 1000)]
+                     #:opacity   [opa (random-float 0.25 1.0 #:factor 100)]
+                     #:color     [c (random-color)]
+                     #:texture   [texture #f])
   #;(basic-torus #:rotation       tilt
                #:radius         rad
                #:radius-tubular rt
