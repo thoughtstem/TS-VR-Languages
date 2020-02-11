@@ -5,6 +5,7 @@
 
 (require (except-in vr-engine
                     basic-ring)
+         (prefix-in vr: (only-in vr-engine basic-ring))
          "../assets.rkt"
          image-coloring
          ts-kata-util)
@@ -90,6 +91,12 @@
 (define (radius-attribute? attr)
   (is-a? attr radius%))
 
+(define (radius-inner-attribute? attr)
+  (is-a? attr radius-inner%))
+
+(define (radius-outer-attribute? attr)
+  (is-a? attr radius-outer%))
+
 (define (scale-attribute? attr)
   (is-a? attr scale%))
 
@@ -174,9 +181,11 @@
                                                (second n-list)
                                                (third n-list))
                                      (position 0 0 0))
-              #:thicknes 0.05
+              #:thickness 0.05
               #:opacity 1.0
-              #:color 'white))
+              #:color 'white
+              #:shader "flat"
+              ))
 
   
 (define (add-orbits a-list xyz)
@@ -190,7 +199,7 @@
 ; ==== SPACE ORBIT =====
 (define/contract/doc (orbit-scene #:fly-speed       [speed 750]
                                   #:fly-mode?       [fly-mode #t]
-                                  #:start-position  [start (position 0 1.6 0)]
+                                  #:start-position  [start (position 0 1.6 30)]
                                   #:universe        [universe (basic-universe)]
                                   #:star            [star '()]
                                   ;#:planets         [planets '()]
@@ -252,6 +261,9 @@
                                    (filter-not change-position? all-objects)))
   
   (vr-scene universe
+            (light #:components-list (list (type "ambient")
+                                           (color "#BBBBBB")
+                                           (intensity 0.2)))
             (basic-camera #:position start
                           #:fly? fly-mode
                           #:acceleration speed
@@ -281,7 +293,7 @@
                      #:star-size size
                      #:texture   texture)))
                 
-(define (basic-star #:position        [pos (position 0 0 -30)]
+(define (basic-star #:position        [pos (position 0 0 0)]
                     #:rotation        [rota (rotation 0.0 0.0 0.0)]
                     #:scale           [sca (scale 1.0 1.0 1.0)]
                     #:color           [col (color 255 255 255)]
@@ -300,6 +312,7 @@
                                                                      (tint-img 'white sun-tex)
                                                                      sun-tex)))]
                     #:radius          [r (random 8 15)]
+                    #:light-distance  [ld (* r 35.0)]
                     #:opacity         [opac 1.0]
                     #:show-orbits?    [orbits? #f]
                     #:label           [l #f]
@@ -351,6 +364,7 @@
                 #:scale           sca
                 #:color           col
                 #:texture         texture
+                #:shader          "flat"
                 #:radius          r
                 #:opacity         opac
                 #:animations-list animations-list
@@ -364,15 +378,21 @@
                                               '())
                                           modified-planets
                                           modified-objects
-                                          label)))
+                                          label
+                                          (list (light #:components-list (list (type "point")
+                                                                         (intensity 1.2)
+                                                                         (distance ld))))
+                                          )))
 
-(define (basic-ring  #:tilt     [tilt (tilt 0 0 0)]
-                     #:radius   [rad (random-float 0.25 1.5 #:factor 100)]
-                     #:thicknes [rt (random-float 0.015 0.05 #:factor 1000)]
-                     #:opacity  [opa (random-float 0.25 1.0 #:factor 100)]
-                     #:color    [c (random-color)]
-                     #:texture  [texture #f])
-  (basic-torus #:rotation       tilt
+(define (basic-ring  #:tilt      [tilt (tilt 0 0 0)]
+                     #:radius    [rad (random-float 0.25 1.5 #:factor 100)]
+                     #:thickness [rt ;(random-float 0.015 0.05 #:factor 1000)
+                                    (random-float 0.2 2.0 #:factor 1000)]
+                     #:opacity   [opa (random-float 0.25 1.0 #:factor 100)]
+                     #:color     [c (random-color)]
+                     #:texture   [texture #f]
+                     #:shader    [sha "standard"])
+  #;(basic-torus #:rotation       tilt
                #:radius         rad
                #:radius-tubular rt
                #:opacity        (if texture
@@ -381,7 +401,21 @@
                #:color          (if texture
                                     'white
                                     c)
-               #:texture        texture))
+               #:texture        (if texture
+                                    texture
+                                    ""))
+  (vr:basic-ring #:rotation tilt
+              #:radius-inner (- rad (/ rt 2.0))
+              #:radius-outer (+ rad (/ rt 2.0))
+              #:opacity        opa
+              #:color          (if texture
+                                    'white
+                                    c)
+              #:texture        (if texture
+                                    texture
+                                    "")
+              #:shader         sha)
+  )
 
 (define (basic-planet #:position        [pos (position (random-range 25 75) 0 (random-range 25 75))]
                       #:rotation        [rota (rotation 0.0 0.0 0.0)]
@@ -413,11 +447,31 @@
 
   (define (adjust-radius e)
     (define old-attrs (entity-attrs e))
-    (define (filter-radius-from e)
+
+    #|(define (filter-radius-from e)
       (filter radius-attribute? (entity-attrs e)))
+    
     (define old-r (string->number (render (first (filter-radius-from e)))))
+    
     (define new-attrs (append (list (radius (+ r  old-r)))
-                              (filter-not radius-attribute? old-attrs)))
+                              (filter-not radius-attribute? old-attrs)))|#
+    
+    (define (filter-radius-inner-from e)
+      (filter radius-inner-attribute? (entity-attrs e)))
+    (define (filter-radius-outer-from e)
+      (filter radius-outer-attribute? (entity-attrs e)))
+
+    (define old-radius-inner
+      (string->number (render (first (filter-radius-inner-from e)))))
+    (define old-radius-outer
+      (string->number (render (first (filter-radius-outer-from e)))))
+
+    (define new-attrs (append (list (radius-inner (+ r old-radius-inner))
+                                    (radius-outer (+ r old-radius-outer)))
+                              (filter-not (or/c radius-inner-attribute?
+                                                radius-outer-attribute?)
+                                                old-attrs)))
+      
     (update-attributes e new-attrs))
 
   (define label
@@ -599,6 +653,7 @@
                   #:color           [col (color 255 255 255)]
                   #:texture         [texture sun-tex]
                   #:radius          [r 109]
+                  #:light-distance  [ld (* r 35.0)]
                   #:opacity         [opac 1.0]
                   #:show-orbits?    [orbits? #f]
                   #:label           [l "Sun"]
@@ -617,6 +672,7 @@
               #:color           col
               #:texture         texture
               #:radius          r
+              #:light-distance  ld
               #:opacity         opac
               #:show-orbits?    orbits?
               #:label           l
@@ -853,20 +909,25 @@
                        #:scale           [sca (scale 1.0 1.0 1.0)]
                        #:color           [col (color 255 255 255)]
                        #:texture         [texture saturn-tex]
-                       #:radius          [r 9.4]
+                       #:radius          [r 9.4] ; 5
                        #:opacity         [opac 1.0]
                        #:rings-list      [r-list (list (basic-ring #:tilt (tilt 45 90 0)
+                                                                   #:opacity 0.8
+                                                                   #:texture saturnring-tex
+                                                                   #:radius (- (* r 1.55) r) ;0.5
+                                                                   #:thickness (* r 0.9)) ; 3.5
+                                                       #;(basic-ring #:tilt (tilt 45 90 0)
                                                                    #:texture saturnring-tex
                                                                    #:radius 1.6
-                                                                   #:thicknes 0.45)
-                                                       (basic-ring #:tilt (tilt 45 90 0)
+                                                                   #:thickness 0.45)
+                                                       #;(basic-ring #:tilt (tilt 45 90 0)
                                                                    #:texture saturnring-tex
                                                                    #:radius 2.6
-                                                                   #:thicknes 0.45)
-                                                       (basic-ring #:tilt (tilt 45 90 0)
+                                                                   #:thickness 0.45)
+                                                       #;(basic-ring #:tilt (tilt 45 90 0)
                                                                    #:texture saturnring-tex
                                                                    #:radius 3.6
-                                                                   #:thicknes 0.45))]
+                                                                   #:thickness 0.45))]
                        #:moons-list      [m-list '()]
                        #:label           [l "Saturn"]
                        #:label-color     [lc 'white]
@@ -1010,6 +1071,7 @@
                               #:star-size 2)
    #:star (star-sun #:position (position 0 0 -50)
                     #:radius 5.762
+                    #:light-distance 4000
                     #:show-orbits? #t
                     #:planets-list (list (planet-mercury #:position (position 48 0 0)
                                                          #:radius 0.202)

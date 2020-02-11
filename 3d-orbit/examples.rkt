@@ -199,7 +199,7 @@
 
 (define-example-code  
   3d-orbit moon-and-ring-5
-  (define (my-rings)
+  (define my-rings
     (list
      (basic-ring
       #:color 'red
@@ -212,7 +212,7 @@
    #:star (basic-star
            #:planets-list (list
                            (basic-planet
-                            #:rings-list (my-rings)))))
+                            #:rings-list my-rings))))
   )
 
 ; ===== SPACE OBJECTS KATAS
@@ -321,7 +321,7 @@
     (basic-ring #:rotation (rotation 90 0 0)
                 #:texture saturnring-tex
                 #:radius 2
-                #:thicknes 0.5))
+                #:thickness 0.5))
      
   (define my-planets
     (list
