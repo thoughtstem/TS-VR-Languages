@@ -318,7 +318,7 @@
 (define-example-code  
   3d-orbit star-system-2
   (define the-ring
-    (basic-ring #:rotation (rotation 90 0 0)
+    (basic-ring #:tilt (tilt 90 0 0)
                 #:texture saturnring-tex
                 #:radius 2
                 #:thickness 0.5))
