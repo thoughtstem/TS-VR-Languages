@@ -20,23 +20,23 @@
          scale-object
          tilt
 
-         basic-universe
-         basic-star
-         basic-planet
-         basic-ring
-         basic-moon
-         basic-asteroid
+         ;basic-universe
+         ;basic-star
+         ;basic-planet
+         ;basic-ring
+         ;basic-moon
+         ;basic-asteroid
 
-         star-sun
-         planet-mercury
-         planet-venus
-         planet-earth
-         moon-moon
-         planet-mars
-         planet-jupiter
-         planet-saturn
-         planet-uranus
-         planet-neptune
+         ;star-sun
+         ;planet-mercury
+         ;planet-venus
+         ;planet-earth
+         ;moon-moon
+         ;planet-mars
+         ;planet-jupiter
+         ;planet-saturn
+         ;planet-uranus
+         ;planet-neptune
 
          solar-system
          planets-to-scale
@@ -196,23 +196,24 @@
   (define xyz-list (make-list (length posn-str-list) xyz))
   (map make-orbit posn-str-list xyz-list))
 
+(define (between-0-1-inclusive? x)
+  (and (>= x 0) (<= x 1)))
+
 ; ==== SPACE ORBIT =====
 (define/contract/doc (orbit-scene #:fly-speed       [speed 750]
                                   #:fly-mode?       [fly-mode #t]
                                   #:start-position  [start (position 0 1.6 30)]
                                   #:universe        [universe (basic-universe)]
                                   #:star            [star '()]
-                                  ;#:planets         [planets '()]
                                   #:objects-list    [objects '()]
                                   . other-entities)
-  ; === TODO: Fix contract
+  
   (->i ()
        (#:fly-speed      [speed positive?]
         #:fly-mode?      [fly-mode boolean?]
         #:start-position [start position-attribute?]
         #:universe       [universe (listof entity?)]
         #:star           [star entity?]
-        ;#:planets        [planets any/c]
         #:objects-list   [objects list?])
        #:rest           [more-objects any/c]
        [returns any/c])
@@ -277,13 +278,25 @@
 
 ; ===== SPACE OBJECTS
 
-(define (basic-universe #:universe-color [bg-color 'black]
-                        #:star-color [star-color 'white]
-                        #:star-count [count 10000]
-                        #:star-depth [dep 250]
-                        #:star-radius [rad 250]
-                        #:star-size [size 1.0]
-                        #:star-texture [texture ""])
+(define/contract/doc (basic-universe #:universe-color [bg-color 'black]
+                                     #:star-color [star-color 'white]
+                                     #:star-count [count 10000]
+                                     #:star-depth [dep 250]
+                                     #:star-radius [rad 250]
+                                     #:star-size [size 1.0]
+                                     #:star-texture [texture ""])
+  (->i ()
+       (#:universe-color [bg-color (or/c string? symbol? object?)]
+        #:star-color     [star-color (or/c string? symbol? object?)]
+        #:star-count     [count real?]
+        #:star-depth     [dep real?]
+        #:star-radius    [rad real?]
+        #:star-size      [size real?]
+        #:star-texture   [texture any/c])
+       [return (listof entity?)])
+
+  @{Basic Universe}
+  
   (list (basic-sky #:color bg-color
                    #:radius (* 2 rad))
         (basic-stars #:color     star-color
@@ -293,38 +306,62 @@
                      #:star-size size
                      #:texture   texture)))
                 
-(define (basic-star #:position        [pos (position 0 0 0)]
-                    #:rotation        [rota (rotation 0.0 0.0 0.0)]
-                    #:scale           [sca (scale 1.0 1.0 1.0)]
-                    #:color           [col (color 255 255 255)]
-                    #:texture         [texture (first (shuffle (list (tint-img 'brown sun-tex)
-                                                                     (tint-img 'red sun-tex)
-                                                                     (tint-img 'darkred sun-tex)
-                                                                     (tint-img 'lightred sun-tex)
-                                                                     (tint-img 'orange sun-tex)
-                                                                     (tint-img 'darkorange sun-tex)
-                                                                     (tint-img 'lightorange sun-tex)
-                                                                     (tint-img 'yellow sun-tex)
-                                                                     (tint-img 'darkyellow sun-tex)
-                                                                     (tint-img 'lightyellow sun-tex)
-                                                                     (tint-img 'salmon sun-tex)
-                                                                     (tint-img 'purple sun-tex)
-                                                                     (tint-img 'white sun-tex)
-                                                                     sun-tex)))]
-                    #:radius          [r (random 8 15)]
-                    #:light-distance  [ld (* r 35.0)]
-                    #:opacity         [opac 1.0]
-                    #:show-orbits?    [orbits? #f]
-                    #:label           [l #f]
-                    #:label-color     [lc 'white]
-                    #:label-position  [lp (position 0 r 0)]
-                    #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
-                    #:animations-list [animations-list (do-many (y-rotation))]
-                    #:planets-list    [p-list '()]
-                    #:on-mouse-enter  [mouse-enter #f]
-                    #:on-mouse-leave  [mouse-leave #f]
-                    #:on-mouse-click  [mouse-click #f]
-                    #:objects-list [c-list '()])
+(define/contract/doc (basic-star #:position        [pos (position 0 0 0)]
+                                 #:rotation        [rota (rotation 0.0 0.0 0.0)]
+                                 #:scale           [sca (scale 1.0 1.0 1.0)]
+                                 #:color           [col (color 255 255 255)]
+                                 #:texture         [texture (first (shuffle (list (tint-img 'brown sun-tex)
+                                                                                  (tint-img 'red sun-tex)
+                                                                                  (tint-img 'darkred sun-tex)
+                                                                                  (tint-img 'lightred sun-tex)
+                                                                                  (tint-img 'orange sun-tex)
+                                                                                  (tint-img 'darkorange sun-tex)
+                                                                                  (tint-img 'lightorange sun-tex)
+                                                                                  (tint-img 'yellow sun-tex)
+                                                                                  (tint-img 'darkyellow sun-tex)
+                                                                                  (tint-img 'lightyellow sun-tex)
+                                                                                  (tint-img 'salmon sun-tex)
+                                                                                  (tint-img 'purple sun-tex)
+                                                                                  (tint-img 'white sun-tex)
+                                                                                  sun-tex)))]
+                                 #:radius          [r (random 8 15)]
+                                 #:light-distance  [ld (* r 35.0)]
+                                 #:opacity         [opac 1.0]
+                                 #:show-orbits?    [orbits? #f]
+                                 #:label           [l #f]
+                                 #:label-color     [lc 'white]
+                                 #:label-position  [lp (position 0 r 0)]
+                                 #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
+                                 #:animations-list [animations-list (do-many (y-rotation))]
+                                 #:planets-list    [p-list '()]
+                                 #:on-mouse-enter  [mouse-enter #f]
+                                 #:on-mouse-leave  [mouse-leave #f]
+                                 #:on-mouse-click  [mouse-click #f]
+                                 #:objects-list [c-list '()])
+  
+  (->i ()
+       (#:position        [pos object?]
+        #:rotation        [rota object?]
+        #:scale           [sca (or/c number? object?)]
+        #:color           [col (or/c string? symbol? object?)]
+        #:texture         [texture any/c]
+        #:radius          [r real?]
+        #:light-distance  [ld real?]
+        #:opacity         [opac between-0-1-inclusive?]
+        #:show-orbits?    [orbits? boolean?]
+        #:label           [l (or/c boolean? string?)]
+        #:label-color     [lc (or/c string? symbol? object?)]
+        #:label-position  [lp object?]
+        #:label-scale     [ls (or/c number? object?)]
+        #:animations-list [animations-list (or/c empty? (listof object?))]
+        #:planets-list    [p-list (or/c empty? (listof entity?))]
+        #:on-mouse-enter  [mouse-enter (or/c #f (listof object?))]
+        #:on-mouse-leave  [mouse-leave (or/c #f (listof object?))]
+        #:on-mouse-click  [mouse-click (or/c #f (listof object?))]
+        #:objects-list    [c-list (or/c empty? (listof entity?))])
+       [returns entity?])
+
+  @{Basic Star.}
 
   (define label
     (if l
@@ -340,7 +377,7 @@
                                    (filter-not change-position? p-list)))
 
 
-   (define (add-radius e)
+  (define (add-radius e)
     (define old-attrs (entity-attrs e))
     (define pos-attr (filter position-attribute? old-attrs))
     (if (empty? pos-attr)
@@ -380,70 +417,107 @@
                                           modified-objects
                                           label
                                           (list (light #:components-list (list (type "point")
-                                                                         (intensity 1.2)
-                                                                         (distance ld))))
+                                                                               (intensity 1.2)
+                                                                               (distance ld))))
                                           )))
 
-(define (basic-ring  #:tilt      [tilt (tilt 0 0 0)]
-                     #:radius    [rad (random-float 0.25 1.5 #:factor 100)]
-                     #:thickness [rt ;(random-float 0.015 0.05 #:factor 1000)
-                                    (random-float 0.2 2.0 #:factor 1000)]
-                     #:opacity   [opa (random-float 0.25 1.0 #:factor 100)]
-                     #:color     [c (random-color)]
-                     #:texture   [texture #f]
-                     #:shader    [sha "standard"])
+(define/contract/doc (basic-ring  #:tilt      [tilt (tilt 0 0 0)]
+                                  #:radius    [rad (random-float 0.25 1.5 #:factor 100)]
+                                  #:thickness [rt ;(random-float 0.015 0.05 #:factor 1000)
+                                               (random-float 0.2 2.0 #:factor 1000)]
+                                  #:opacity   [opa (random-float 0.25 1.0 #:factor 100)]
+                                  #:color     [c #f ]
+                                  #:texture   [texture #f]
+                                  #:shader    [sha "standard"])
+
+  (->i ()
+       (#:tilt      [tilt object?]
+        #:radius    [rad real?]
+        #:thickness [rt real?]
+        #:opacity   [opa between-0-1-inclusive?]
+        #:color     [c (or/c #f string? symbol? object?)]
+        #:texture   [texture any/c]
+        #:shader    [sha string?])
+       [returns entity?])
+
+  @{Basic Ring.}
+  
   #;(basic-torus #:rotation       tilt
-               #:radius         rad
-               #:radius-tubular rt
-               #:opacity        (if texture
-                                    1.0
-                                    opa)
-               #:color          (if texture
-                                    'white
-                                    c)
-               #:texture        (if texture
-                                    texture
-                                    ""))
+                 #:radius         rad
+                 #:radius-tubular rt
+                 #:opacity        (if texture
+                                      1.0
+                                      opa)
+                 #:color          (if texture
+                                      'white
+                                      c)
+                 #:texture        (if texture
+                                      texture
+                                      ""))
   (vr:basic-ring #:rotation tilt
-              #:radius-inner (- rad (/ rt 2.0))
-              #:radius-outer (+ rad (/ rt 2.0))
-              #:opacity        opa
-              #:color          (if texture
-                                    'white
-                                    c)
-              #:texture        (if texture
-                                    texture
-                                    "")
-              #:shader         sha)
+                 #:radius-inner (- rad (/ rt 2.0))
+                 #:radius-outer (+ rad (/ rt 2.0))
+                 #:opacity        opa
+                 #:color          (cond [c c]
+                                        [texture 'white]
+                                        [else (random-color)])
+                 #:texture        (if texture
+                                      texture
+                                      "")
+                 #:shader         sha)
   )
 
-(define (basic-planet #:position        [pos (position (random-range 25 75) 0 (random-range 25 75))]
-                      #:rotation        [rota (rotation 0.0 0.0 0.0)]
-                      #:scale           [sca (scale 1.0 1.0 1.0)]
-                      #:color           [col (color 255 255 255)]
-                      #:texture         [texture (first (shuffle (list mercury-tex
-                                                                       venus-tex
-                                                                       earth-tex
-                                                                       earthnight-tex
-                                                                       mars-tex
-                                                                       jupiter-tex
-                                                                       saturn-tex
-                                                                       uranus-tex
-                                                                       neptune-tex)))]
-                      #:radius          [r (random 1 5)]
-                      #:opacity         [opac 1.0]
-                      #:rings-list      [r-list '()]
-                      #:moons-list      [m-list '()]
-                      #:label           [l #f]
-                      #:label-color     [lc 'white]
-                      #:label-position  [lp (position 0 r 0)]
-                      #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
-                      #:show-orbits?    [orbits? #f]
-                      #:animations-list [animations-list (do-many (x-rotation))]
-                      #:on-mouse-enter  [mouse-enter #f]
-                      #:on-mouse-leave  [mouse-leave #f]
-                      #:on-mouse-click  [mouse-click #f]
-                      #:objects-list    [c-list '()])
+(define/contract/doc (basic-planet #:position        [pos (position (random-range 25 75) 0 (random-range 25 75))]
+                                   #:rotation        [rota (rotation 0.0 0.0 0.0)]
+                                   #:scale           [sca (scale 1.0 1.0 1.0)]
+                                   #:color           [col (color 255 255 255)]
+                                   #:texture         [texture (first (shuffle (list mercury-tex
+                                                                                    venus-tex
+                                                                                    earth-tex
+                                                                                    earthnight-tex
+                                                                                    mars-tex
+                                                                                    jupiter-tex
+                                                                                    saturn-tex
+                                                                                    uranus-tex
+                                                                                    neptune-tex)))]
+                                   #:radius          [r (random 1 5)]
+                                   #:opacity         [opac 1.0]
+                                   #:rings-list      [r-list '()]
+                                   #:moons-list      [m-list '()]
+                                   #:label           [l #f]
+                                   #:label-color     [lc 'white]
+                                   #:label-position  [lp (position 0 r 0)]
+                                   #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
+                                   #:show-orbits?    [orbits? #f]
+                                   #:animations-list [animations-list (do-many (x-rotation))]
+                                   #:on-mouse-enter  [mouse-enter #f]
+                                   #:on-mouse-leave  [mouse-leave #f]
+                                   #:on-mouse-click  [mouse-click #f]
+                                   #:objects-list    [c-list '()])
+
+  (->i ()
+       (#:position        [pos object?]
+        #:rotation        [rota object?]
+        #:scale           [sca (or/c number? object?)]
+        #:color           [col (or/c string? symbol? object?)]
+        #:texture         [texture any/c]
+        #:radius          [r real?]
+        #:opacity         [opac between-0-1-inclusive?]
+        #:rings-list      [r-list (or/c empty? (listof entity?))]
+        #:moons-list      [m-list (or/c empty? (listof entity?))]
+        #:label           [l (or/c boolean? string?)]
+        #:label-color     [lc (or/c string? symbol? object?)]
+        #:label-position  [lp object?]
+        #:label-scale     [ls (or/c number? object?)]
+        #:show-orbits?    [orbits? boolean?]
+        #:animations-list [animations-list (or/c empty? (listof object?))]
+        #:on-mouse-enter  [mouse-enter (or/c #f (listof object?))]
+        #:on-mouse-leave  [mouse-leave (or/c #f (listof object?))]
+        #:on-mouse-click  [mouse-click (or/c #f (listof object?))]
+        #:objects-list    [c-list (or/c empty? (listof entity?))])
+       [returns entity?])
+
+  @{Basic Planet.}
 
   (define (adjust-radius e)
     (define old-attrs (entity-attrs e))
@@ -470,7 +544,7 @@
                                     (radius-outer (+ r old-radius-outer)))
                               (filter-not (or/c radius-inner-attribute?
                                                 radius-outer-attribute?)
-                                                old-attrs)))
+                                          old-attrs)))
       
     (update-attributes e new-attrs))
 
@@ -487,7 +561,7 @@
                                                                  m-list))
                                  (filter-not change-position? m-list)))
 
-   (define (add-radius e)
+  (define (add-radius e)
     (define old-attrs (entity-attrs e))
     (define pos-attr (filter position-attribute? old-attrs))
     (if (empty? pos-attr)
@@ -528,22 +602,43 @@
                                               '())
                                           label)))
 
-(define (basic-moon #:position        [pos (position 0 (random-range 7 12) (random-range 7 12))]
-                    #:rotation        [rota (rotation 0.0 0.0 0.0)]
-                    #:scale           [sca (scale 1.0 1.0 1.0)]
-                    #:color           [col (color 255 255 255)]
-                    #:texture         [texture moon-tex]
-                    #:radius          [r (random-float 0.25 0.75 #:factor 100)]
-                    #:opacity         [opac 1.0]
-                    #:label           [l #f]
-                    #:label-color     [lc 'white]
-                    #:label-position  [lp (position 0 r 0)]
-                    #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
-                    #:animations-list [animations-list (do-many (y-rotation))]
-                    #:on-mouse-enter  [mouse-enter #f]
-                    #:on-mouse-leave  [mouse-leave #f]
-                    #:on-mouse-click  [mouse-click #f]
-                    #:objects-list    [c-list '()])
+(define/contract/doc (basic-moon #:position        [pos (position 0 (random-range 7 12) (random-range 7 12))]
+                                 #:rotation        [rota (rotation 0.0 0.0 0.0)]
+                                 #:scale           [sca (scale 1.0 1.0 1.0)]
+                                 #:color           [col (color 255 255 255)]
+                                 #:texture         [texture moon-tex]
+                                 #:radius          [r (random-float 0.25 0.75 #:factor 100)]
+                                 #:opacity         [opac 1.0]
+                                 #:label           [l #f]
+                                 #:label-color     [lc 'white]
+                                 #:label-position  [lp (position 0 r 0)]
+                                 #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
+                                 #:animations-list [animations-list (do-many (y-rotation))]
+                                 #:on-mouse-enter  [mouse-enter #f]
+                                 #:on-mouse-leave  [mouse-leave #f]
+                                 #:on-mouse-click  [mouse-click #f]
+                                 #:objects-list    [c-list '()])
+
+  (->i ()
+       (#:position        [pos object?]
+        #:rotation        [rota object?]
+        #:scale           [sca (or/c number? object?)]
+        #:color           [col (or/c string? symbol? object?)]
+        #:texture         [texture any/c]
+        #:radius          [r real?]
+        #:opacity         [opac between-0-1-inclusive?]
+        #:label           [l (or/c boolean? string?)]
+        #:label-color     [lc (or/c string? symbol? object?)]
+        #:label-position  [lp object?]
+        #:label-scale     [ls (or/c number? object?)]
+        #:animations-list [animations-list (or/c empty? (listof object?))]
+        #:on-mouse-enter  [mouse-enter (or/c #f (listof object?))]
+        #:on-mouse-leave  [mouse-leave (or/c #f (listof object?))]
+        #:on-mouse-click  [mouse-click (or/c #f (listof object?))]
+        #:objects-list    [c-list (or/c empty? (listof entity?))])
+       [returns entity?])
+
+  @{Basic Moon.}
 
   (define label
     (if l
@@ -554,7 +649,7 @@
                           #:baseline 'bottom))
         '()))
 
-   (define (add-radius e)
+  (define (add-radius e)
     (define old-attrs (entity-attrs e))
     (define pos-attr (filter position-attribute? old-attrs))
     (if (empty? pos-attr)
@@ -585,26 +680,47 @@
                 #:on-mouse-click  mouse-click
                 #:components-list (append modified-objects label)))
 
-(define (basic-asteroid #:position        [pos (position 0 (random-range 7 12) (random-range 7 12))]
-                        #:rotation        [rota (rotation 0.0 0.0 0.0)]
-                        #:scale           [sca (scale 1.0 1.0 1.0)]
-                        #:color           [col (color 255 255 255)]
-                        #:texture         [texture (first (shuffle (list (tint-img 'brown asteroid-tex)
-                                                                         (tint-img 'black asteroid-tex)
-                                                                         (tint-img 'grey asteroid-tex)
-                                                                         (tint-img 'white asteroid-tex)
-                                                                         asteroid-tex)))]
-                        #:radius          [r (random-float 0.1 0.3 #:factor 100)]
-                        #:opacity         [opac 1.0]
-                        #:label           [l #f]
-                        #:label-color     [lc 'white]
-                        #:label-position  [lp (position 0 r 0)]
-                        #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
-                        #:animations-list [animations-list (do-many (y-rotation))]
-                        #:on-mouse-enter  [mouse-enter #f]
-                        #:on-mouse-leave  [mouse-leave #f]
-                        #:on-mouse-click  [mouse-click #f]
-                        #:objects-list    [c-list '()])
+(define/contract/doc (basic-asteroid #:position        [pos (position 0 (random-range 7 12) (random-range 7 12))]
+                                     #:rotation        [rota (rotation 0.0 0.0 0.0)]
+                                     #:scale           [sca (scale 1.0 1.0 1.0)]
+                                     #:color           [col (color 255 255 255)]
+                                     #:texture         [texture (first (shuffle (list (tint-img 'brown asteroid-tex)
+                                                                                      (tint-img 'black asteroid-tex)
+                                                                                      (tint-img 'grey asteroid-tex)
+                                                                                      (tint-img 'white asteroid-tex)
+                                                                                      asteroid-tex)))]
+                                     #:radius          [r (random-float 0.1 0.3 #:factor 100)]
+                                     #:opacity         [opac 1.0]
+                                     #:label           [l #f]
+                                     #:label-color     [lc 'white]
+                                     #:label-position  [lp (position 0 r 0)]
+                                     #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
+                                     #:animations-list [animations-list (do-many (y-rotation))]
+                                     #:on-mouse-enter  [mouse-enter #f]
+                                     #:on-mouse-leave  [mouse-leave #f]
+                                     #:on-mouse-click  [mouse-click #f]
+                                     #:objects-list    [c-list '()])
+
+  (->i ()
+       (#:position        [pos object?]
+        #:rotation        [rota object?]
+        #:scale           [sca (or/c number? object?)]
+        #:color           [col (or/c string? symbol? object?)]
+        #:texture         [texture any/c]
+        #:radius          [r real?]
+        #:opacity         [opac between-0-1-inclusive?]
+        #:label           [l (or/c boolean? string?)]
+        #:label-color     [lc (or/c string? symbol? object?)]
+        #:label-position  [lp object?]
+        #:label-scale     [ls (or/c number? object?)]
+        #:animations-list [animations-list (or/c empty? (listof object?))]
+        #:on-mouse-enter  [mouse-enter (or/c #f (listof object?))]
+        #:on-mouse-leave  [mouse-leave (or/c #f (listof object?))]
+        #:on-mouse-click  [mouse-click (or/c #f (listof object?))]
+        #:objects-list    [c-list (or/c empty? (listof entity?))])
+       [returns entity?])
+
+  @{Basic Asteroid.}
 
   (define label
     (if l
@@ -647,25 +763,50 @@
                       #:components-list (append modified-objects label)))
 
 ; ====== SUN AND PLANETS ======
-(define (star-sun #:position        [pos (position 0 0 -250)]
-                  #:rotation        [rota (rotation 0.0 0.0 0.0)]
-                  #:scale           [sca (scale 1.0 1.0 1.0)]
-                  #:color           [col (color 255 255 255)]
-                  #:texture         [texture sun-tex]
-                  #:radius          [r 109]
-                  #:light-distance  [ld (* r 35.0)]
-                  #:opacity         [opac 1.0]
-                  #:show-orbits?    [orbits? #f]
-                  #:label           [l "Sun"]
-                  #:label-color     [lc 'white]
-                  #:label-position  [lp (position 0 r 0)]
-                  #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
-                  #:animations-list [animations-list (do-many (y-rotation))]
-                  #:planets-list    [p-list '()]
-                  #:on-mouse-enter  [mouse-enter #f]
-                  #:on-mouse-leave  [mouse-leave #f]
-                  #:on-mouse-click  [mouse-click #f]
-                  #:objects-list    [o-list '()])
+(define/contract/doc (star-sun #:position        [pos (position 0 0 -250)]
+                               #:rotation        [rota (rotation 0.0 0.0 0.0)]
+                               #:scale           [sca (scale 1.0 1.0 1.0)]
+                               #:color           [col (color 255 255 255)]
+                               #:texture         [texture sun-tex]
+                               #:radius          [r 109]
+                               #:light-distance  [ld (* r 35.0)]
+                               #:opacity         [opac 1.0]
+                               #:show-orbits?    [orbits? #f]
+                               #:label           [l "Sun"]
+                               #:label-color     [lc 'white]
+                               #:label-position  [lp (position 0 r 0)]
+                               #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
+                               #:animations-list [animations-list (do-many (y-rotation))]
+                               #:planets-list    [p-list '()]
+                               #:on-mouse-enter  [mouse-enter #f]
+                               #:on-mouse-leave  [mouse-leave #f]
+                               #:on-mouse-click  [mouse-click #f]
+                               #:objects-list    [o-list '()])
+
+  (->i ()
+       (#:position        [pos object?]
+        #:rotation        [rota object?]
+        #:scale           [sca (or/c number? object?)]
+        #:color           [col (or/c string? symbol? object?)]
+        #:texture         [texture any/c]
+        #:radius          [r real?]
+        #:light-distance  [ld real?]
+        #:opacity         [opac between-0-1-inclusive?]
+        #:show-orbits?    [orbits? boolean?]
+        #:label           [l (or/c boolean? string?)]
+        #:label-color     [lc (or/c string? symbol? object?)]
+        #:label-position  [lp object?]
+        #:label-scale     [ls (or/c number? object?)]
+        #:animations-list [animations-list (or/c empty? (listof object?))]
+        #:planets-list    [p-list (or/c empty? (listof entity?))]
+        #:on-mouse-enter  [mouse-enter (or/c #f (listof object?))]
+        #:on-mouse-leave  [mouse-leave (or/c #f (listof object?))]
+        #:on-mouse-click  [mouse-click (or/c #f (listof object?))]
+        #:objects-list    [c-list (or/c empty? (listof entity?))])
+       [returns entity?])
+
+  @{Star Sun.}
+  
   (basic-star #:position        pos
               #:rotation        rota
               #:scale           sca
@@ -686,24 +827,50 @@
               #:on-mouse-click  mouse-click
               #:objects-list o-list))
 
-(define (planet-mercury #:position        [pos (position 0 0 2)]
-                        #:rotation        [rota (rotation 0.0 0.0 0.0)]
-                        #:scale           [sca (scale 1.0 1.0 1.0)]
-                        #:color           [col (color 255 255 255)]
-                        #:texture         [texture mercury-tex]
-                        #:radius          [r 0.38]
-                        #:opacity         [opac 1.0]
-                        #:rings-list      [r-list '()]
-                        #:moons-list      [m-list '()]
-                        #:label           [l "Mercury"]
-                        #:label-color     [lc 'white]
-                        #:label-position  [lp (position 0 r 0)]
-                        #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
-                        #:animations-list [animations-list (do-many (x-rotation))]
-                        #:on-mouse-enter  [mouse-enter #f]
-                        #:on-mouse-leave  [mouse-leave #f]
-                        #:on-mouse-click  [mouse-click #f]
-                        #:objects-list    [o-list '()])
+(define/contract/doc (planet-mercury #:position        [pos (position 0 0 2)]
+                                     #:rotation        [rota (rotation 0.0 0.0 0.0)]
+                                     #:scale           [sca (scale 1.0 1.0 1.0)]
+                                     #:color           [col (color 255 255 255)]
+                                     #:texture         [texture mercury-tex]
+                                     #:radius          [r 0.38]
+                                     #:opacity         [opac 1.0]
+                                     #:rings-list      [r-list '()]
+                                     #:moons-list      [m-list '()]
+                                     #:label           [l "Mercury"]
+                                     #:label-color     [lc 'white]
+                                     #:label-position  [lp (position 0 r 0)]
+                                     #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
+                                     #:show-orbits?    [orbits? #f]
+                                     #:animations-list [animations-list (do-many (x-rotation))]
+                                     #:on-mouse-enter  [mouse-enter #f]
+                                     #:on-mouse-leave  [mouse-leave #f]
+                                     #:on-mouse-click  [mouse-click #f]
+                                     #:objects-list    [o-list '()])
+
+  (->i ()
+       (#:position        [pos object?]
+        #:rotation        [rota object?]
+        #:scale           [sca (or/c number? object?)]
+        #:color           [col (or/c string? symbol? object?)]
+        #:texture         [texture any/c]
+        #:radius          [r real?]
+        #:opacity         [opac between-0-1-inclusive?]
+        #:rings-list      [r-list (or/c empty? (listof entity?))]
+        #:moons-list      [m-list (or/c empty? (listof entity?))]
+        #:label           [l (or/c boolean? string?)]
+        #:label-color     [lc (or/c string? symbol? object?)]
+        #:label-position  [lp object?]
+        #:label-scale     [ls (or/c number? object?)]
+        #:show-orbits?    [orbits? boolean?]
+        #:animations-list [animations-list (or/c empty? (listof object?))]
+        #:on-mouse-enter  [mouse-enter (or/c #f (listof object?))]
+        #:on-mouse-leave  [mouse-leave (or/c #f (listof object?))]
+        #:on-mouse-click  [mouse-click (or/c #f (listof object?))]
+        #:objects-list    [c-list (or/c empty? (listof entity?))])
+       [returns entity?])
+
+  @{Planet Mercury.}
+  
   (basic-planet #:position        pos
                 #:rotation        rota
                 #:scale           sca
@@ -717,30 +884,57 @@
                 #:label-color     lc
                 #:label-position  lp
                 #:label-scale     ls
+                #:show-orbits?    orbits?
                 #:animations-list animations-list
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
                 #:on-mouse-click  mouse-click
                 #:objects-list o-list))
 
-(define (planet-venus #:position        [pos (position 0 0 3)]
-                      #:rotation        [rota (rotation 0.0 0.0 0.0)]
-                      #:scale           [sca (scale 1.0 1.0 1.0)]
-                      #:color           [col (color 255 255 255)]
-                      #:texture         [texture venus-tex]
-                      #:radius          [r 0.95]
-                      #:opacity         [opac 1.0]
-                      #:rings-list      [r-list '()]
-                      #:moons-list      [m-list '()]
-                      #:label           [l "Venus"]
-                      #:label-color     [lc 'white]
-                      #:label-position  [lp (position 0 r 0)]
-                      #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
-                      #:animations-list [animations-list (do-many (x-rotation))]
-                      #:on-mouse-enter  [mouse-enter #f]
-                      #:on-mouse-leave  [mouse-leave #f]
-                      #:on-mouse-click  [mouse-click #f]
-                      #:objects-list    [o-list '()])
+(define/contract/doc (planet-venus #:position        [pos (position 0 0 3)]
+                                   #:rotation        [rota (rotation 0.0 0.0 0.0)]
+                                   #:scale           [sca (scale 1.0 1.0 1.0)]
+                                   #:color           [col (color 255 255 255)]
+                                   #:texture         [texture venus-tex]
+                                   #:radius          [r 0.95]
+                                   #:opacity         [opac 1.0]
+                                   #:rings-list      [r-list '()]
+                                   #:moons-list      [m-list '()]
+                                   #:label           [l "Venus"]
+                                   #:label-color     [lc 'white]
+                                   #:label-position  [lp (position 0 r 0)]
+                                   #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
+                                   #:show-orbits?    [orbits? #f]
+                                   #:animations-list [animations-list (do-many (x-rotation))]
+                                   #:on-mouse-enter  [mouse-enter #f]
+                                   #:on-mouse-leave  [mouse-leave #f]
+                                   #:on-mouse-click  [mouse-click #f]
+                                   #:objects-list    [o-list '()])
+
+  (->i ()
+       (#:position        [pos object?]
+        #:rotation        [rota object?]
+        #:scale           [sca (or/c number? object?)]
+        #:color           [col (or/c string? symbol? object?)]
+        #:texture         [texture any/c]
+        #:radius          [r real?]
+        #:opacity         [opac between-0-1-inclusive?]
+        #:rings-list      [r-list (or/c empty? (listof entity?))]
+        #:moons-list      [m-list (or/c empty? (listof entity?))]
+        #:label           [l (or/c boolean? string?)]
+        #:label-color     [lc (or/c string? symbol? object?)]
+        #:label-position  [lp object?]
+        #:label-scale     [ls (or/c number? object?)]
+        #:show-orbits?    [orbits? boolean?]
+        #:animations-list [animations-list (or/c empty? (listof object?))]
+        #:on-mouse-enter  [mouse-enter (or/c #f (listof object?))]
+        #:on-mouse-leave  [mouse-leave (or/c #f (listof object?))]
+        #:on-mouse-click  [mouse-click (or/c #f (listof object?))]
+        #:objects-list    [c-list (or/c empty? (listof entity?))])
+       [returns entity?])
+
+  @{Planet Venus.}
+  
   (basic-planet #:position        pos
                 #:rotation        rota
                 #:scale           sca
@@ -754,30 +948,57 @@
                 #:label-color     lc
                 #:label-position  lp
                 #:label-scale     ls
+                #:show-orbits?    orbits?
                 #:animations-list animations-list
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
                 #:on-mouse-click  mouse-click
                 #:objects-list o-list))
 
-(define (planet-earth #:position        [pos (position 0 0 3)]
-                      #:rotation        [rota (rotation 0.0 0.0 0.0)]
-                      #:scale           [sca (scale 1.0 1.0 1.0)]
-                      #:color           [col (color 255 255 255)]
-                      #:texture         [texture earth-tex]
-                      #:radius          [r 1]
-                      #:opacity         [opac 1.0]
-                      #:rings-list      [r-list '()]
-                      #:moons-list      [m-list '()]
-                      #:label           [l "Earth"]
-                      #:label-color     [lc 'white]
-                      #:label-position  [lp (position 0 r 0)]
-                      #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
-                      #:animations-list [animations-list (do-many (x-rotation))]
-                      #:on-mouse-enter  [mouse-enter #f]
-                      #:on-mouse-leave  [mouse-leave #f]
-                      #:on-mouse-click  [mouse-click #f]
-                      #:objects-list    [o-list '()])
+(define/contract/doc (planet-earth #:position        [pos (position 0 0 3)]
+                                   #:rotation        [rota (rotation 0.0 0.0 0.0)]
+                                   #:scale           [sca (scale 1.0 1.0 1.0)]
+                                   #:color           [col (color 255 255 255)]
+                                   #:texture         [texture earth-tex]
+                                   #:radius          [r 1]
+                                   #:opacity         [opac 1.0]
+                                   #:rings-list      [r-list '()]
+                                   #:moons-list      [m-list '()]
+                                   #:label           [l "Earth"]
+                                   #:label-color     [lc 'white]
+                                   #:label-position  [lp (position 0 r 0)]
+                                   #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
+                                   #:show-orbits?    [orbits? #f]
+                                   #:animations-list [animations-list (do-many (x-rotation))]
+                                   #:on-mouse-enter  [mouse-enter #f]
+                                   #:on-mouse-leave  [mouse-leave #f]
+                                   #:on-mouse-click  [mouse-click #f]
+                                   #:objects-list    [o-list '()])
+
+  (->i ()
+       (#:position        [pos object?]
+        #:rotation        [rota object?]
+        #:scale           [sca (or/c number? object?)]
+        #:color           [col (or/c string? symbol? object?)]
+        #:texture         [texture any/c]
+        #:radius          [r real?]
+        #:opacity         [opac between-0-1-inclusive?]
+        #:rings-list      [r-list (or/c empty? (listof entity?))]
+        #:moons-list      [m-list (or/c empty? (listof entity?))]
+        #:label           [l (or/c boolean? string?)]
+        #:label-color     [lc (or/c string? symbol? object?)]
+        #:label-position  [lp object?]
+        #:label-scale     [ls (or/c number? object?)]
+        #:show-orbits?    [orbits? boolean?]
+        #:animations-list [animations-list (or/c empty? (listof object?))]
+        #:on-mouse-enter  [mouse-enter (or/c #f (listof object?))]
+        #:on-mouse-leave  [mouse-leave (or/c #f (listof object?))]
+        #:on-mouse-click  [mouse-click (or/c #f (listof object?))]
+        #:objects-list    [c-list (or/c empty? (listof entity?))])
+       [returns entity?])
+
+  @{Planet Earth.}
+  
   (basic-planet #:position        pos
                 #:rotation        rota
                 #:scale           sca
@@ -791,28 +1012,51 @@
                 #:label-color     lc
                 #:label-position  lp
                 #:label-scale     ls
+                #:show-orbits?    orbits?
                 #:animations-list animations-list
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
                 #:on-mouse-click  mouse-click
                 #:objects-list o-list))
 
-(define (moon-moon #:position        [pos (position 0 0 2)]
-                   #:rotation        [rota (rotation 0.0 0.0 0.0)]
-                   #:scale           [sca (scale 1.0 1.0 1.0)]
-                   #:color           [col (color 255 255 255)]
-                   #:texture         [texture moon-tex]
-                   #:radius          [r 0.27]
-                   #:opacity         [opac 1.0]
-                   #:label           [l "Moon"]
-                   #:label-color     [lc 'white]
-                   #:label-position  [lp (position 0 r 0)]
-                   #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
-                   #:animations-list [animations-list (do-many (y-rotation))]
-                   #:on-mouse-enter  [mouse-enter #f]
-                   #:on-mouse-leave  [mouse-leave #f]
-                   #:on-mouse-click  [mouse-click #f]
-                   #:objects-list    [c '()])
+(define/contract/doc (moon-moon #:position        [pos (position 0 0 2)]
+                                #:rotation        [rota (rotation 0.0 0.0 0.0)]
+                                #:scale           [sca (scale 1.0 1.0 1.0)]
+                                #:color           [col (color 255 255 255)]
+                                #:texture         [texture moon-tex]
+                                #:radius          [r 0.27]
+                                #:opacity         [opac 1.0]
+                                #:label           [l "Moon"]
+                                #:label-color     [lc 'white]
+                                #:label-position  [lp (position 0 r 0)]
+                                #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
+                                #:animations-list [animations-list (do-many (y-rotation))]
+                                #:on-mouse-enter  [mouse-enter #f]
+                                #:on-mouse-leave  [mouse-leave #f]
+                                #:on-mouse-click  [mouse-click #f]
+                                #:objects-list    [c '()])
+
+  (->i ()
+       (#:position        [pos object?]
+        #:rotation        [rota object?]
+        #:scale           [sca (or/c number? object?)]
+        #:color           [col (or/c string? symbol? object?)]
+        #:texture         [texture any/c]
+        #:radius          [r real?]
+        #:opacity         [opac between-0-1-inclusive?]
+        #:label           [l (or/c boolean? string?)]
+        #:label-color     [lc (or/c string? symbol? object?)]
+        #:label-position  [lp object?]
+        #:label-scale     [ls (or/c number? object?)]
+        #:animations-list [animations-list (or/c empty? (listof object?))]
+        #:on-mouse-enter  [mouse-enter (or/c #f (listof object?))]
+        #:on-mouse-leave  [mouse-leave (or/c #f (listof object?))]
+        #:on-mouse-click  [mouse-click (or/c #f (listof object?))]
+        #:objects-list    [c-list (or/c empty? (listof entity?))])
+       [returns entity?])
+
+  @{Basic Moon.}
+  
   (basic-moon #:position        pos
               #:rotation        rota
               #:scale           sca
@@ -830,24 +1074,50 @@
               #:on-mouse-click  mouse-click
               #:objects-list    c))
 
-(define (planet-mars #:position        [pos (position 0 0 3)]
-                     #:rotation        [rota (rotation 0.0 0.0 0.0)]
-                     #:scale           [sca (scale 1.0 1.0 1.0)]
-                     #:color           [col (color 255 255 255)]
-                     #:texture         [texture mars-tex]
-                     #:radius          [r 0.53]
-                     #:opacity         [opac 1.0]
-                     #:rings-list      [r-list '()]
-                     #:moons-list      [m-list '()]
-                     #:label           [l "Mars"]
-                     #:label-color     [lc 'white]
-                     #:label-position  [lp (position 0 r 0)]
-                     #:label-scale     [ls (scale (* 2 r) (* 2 r) 10)]
-                     #:animations-list [animations-list (do-many (x-rotation))]
-                     #:on-mouse-enter  [mouse-enter #f]
-                     #:on-mouse-leave  [mouse-leave #f]
-                     #:on-mouse-click  [mouse-click #f]
-                     #:objects-list    [o-list '()])
+(define/contract/doc (planet-mars #:position        [pos (position 0 0 3)]
+                                  #:rotation        [rota (rotation 0.0 0.0 0.0)]
+                                  #:scale           [sca (scale 1.0 1.0 1.0)]
+                                  #:color           [col (color 255 255 255)]
+                                  #:texture         [texture mars-tex]
+                                  #:radius          [r 0.53]
+                                  #:opacity         [opac 1.0]
+                                  #:rings-list      [r-list '()]
+                                  #:moons-list      [m-list '()]
+                                  #:label           [l "Mars"]
+                                  #:label-color     [lc 'white]
+                                  #:label-position  [lp (position 0 r 0)]
+                                  #:label-scale     [ls (scale (* 2 r) (* 2 r) 10)]
+                                  #:show-orbits?    [orbits? #f]
+                                  #:animations-list [animations-list (do-many (x-rotation))]
+                                  #:on-mouse-enter  [mouse-enter #f]
+                                  #:on-mouse-leave  [mouse-leave #f]
+                                  #:on-mouse-click  [mouse-click #f]
+                                  #:objects-list    [o-list '()])
+
+  (->i ()
+       (#:position        [pos object?]
+        #:rotation        [rota object?]
+        #:scale           [sca (or/c number? object?)]
+        #:color           [col (or/c string? symbol? object?)]
+        #:texture         [texture any/c]
+        #:radius          [r real?]
+        #:opacity         [opac between-0-1-inclusive?]
+        #:rings-list      [r-list (or/c empty? (listof entity?))]
+        #:moons-list      [m-list (or/c empty? (listof entity?))]
+        #:label           [l (or/c boolean? string?)]
+        #:label-color     [lc (or/c string? symbol? object?)]
+        #:label-position  [lp object?]
+        #:label-scale     [ls (or/c number? object?)]
+        #:show-orbits?    [orbits? boolean?]
+        #:animations-list [animations-list (or/c empty? (listof object?))]
+        #:on-mouse-enter  [mouse-enter (or/c #f (listof object?))]
+        #:on-mouse-leave  [mouse-leave (or/c #f (listof object?))]
+        #:on-mouse-click  [mouse-click (or/c #f (listof object?))]
+        #:objects-list    [c-list (or/c empty? (listof entity?))])
+       [returns entity?])
+
+  @{Planet Mars.}
+  
   (basic-planet #:position        pos
                 #:rotation        rota
                 #:scale           sca
@@ -861,30 +1131,57 @@
                 #:label-color     lc
                 #:label-position  lp
                 #:label-scale     ls
+                #:show-orbits?    orbits?
                 #:animations-list animations-list
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
                 #:on-mouse-click  mouse-click
                 #:objects-list o-list))
 
-(define (planet-jupiter #:position        [pos (position 0 0 23)]
-                        #:rotation        [rota (rotation 0.0 0.0 0.0)]
-                        #:scale           [sca (scale 1.0 1.0 1.0)]
-                        #:color           [col (color 255 255 255)]
-                        #:texture         [texture jupiter-tex]
-                        #:radius          [r 11.19]
-                        #:opacity         [opac 1.0]
-                        #:rings-list      [r-list '()]
-                        #:moons-list      [m-list '()]
-                        #:label           [l "Jupiter"]
-                        #:label-color     [lc 'white]
-                        #:label-position  [lp (position 0 r 0)]
-                        #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
-                        #:animations-list [animations-list (do-many (x-rotation))]
-                        #:on-mouse-enter  [mouse-enter #f]
-                        #:on-mouse-leave  [mouse-leave #f]
-                        #:on-mouse-click  [mouse-click #f]
-                        #:objects-list    [o-list '()])
+(define/contract/doc (planet-jupiter #:position        [pos (position 0 0 23)]
+                                     #:rotation        [rota (rotation 0.0 0.0 0.0)]
+                                     #:scale           [sca (scale 1.0 1.0 1.0)]
+                                     #:color           [col (color 255 255 255)]
+                                     #:texture         [texture jupiter-tex]
+                                     #:radius          [r 11.19]
+                                     #:opacity         [opac 1.0]
+                                     #:rings-list      [r-list '()]
+                                     #:moons-list      [m-list '()]
+                                     #:label           [l "Jupiter"]
+                                     #:label-color     [lc 'white]
+                                     #:label-position  [lp (position 0 r 0)]
+                                     #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
+                                     #:show-orbits?    [orbits? #f]
+                                     #:animations-list [animations-list (do-many (x-rotation))]
+                                     #:on-mouse-enter  [mouse-enter #f]
+                                     #:on-mouse-leave  [mouse-leave #f]
+                                     #:on-mouse-click  [mouse-click #f]
+                                     #:objects-list    [o-list '()])
+
+  (->i ()
+       (#:position        [pos object?]
+        #:rotation        [rota object?]
+        #:scale           [sca (or/c number? object?)]
+        #:color           [col (or/c string? symbol? object?)]
+        #:texture         [texture any/c]
+        #:radius          [r real?]
+        #:opacity         [opac between-0-1-inclusive?]
+        #:rings-list      [r-list (or/c empty? (listof entity?))]
+        #:moons-list      [m-list (or/c empty? (listof entity?))]
+        #:label           [l (or/c boolean? string?)]
+        #:label-color     [lc (or/c string? symbol? object?)]
+        #:label-position  [lp object?]
+        #:label-scale     [ls (or/c number? object?)]
+        #:show-orbits?    [orbits? boolean?]
+        #:animations-list [animations-list (or/c empty? (listof object?))]
+        #:on-mouse-enter  [mouse-enter (or/c #f (listof object?))]
+        #:on-mouse-leave  [mouse-leave (or/c #f (listof object?))]
+        #:on-mouse-click  [mouse-click (or/c #f (listof object?))]
+        #:objects-list    [c-list (or/c empty? (listof entity?))])
+       [returns entity?])
+
+  @{Planet Jupiter.}
+  
   (basic-planet #:position        pos
                 #:rotation        rota
                 #:scale           sca
@@ -898,46 +1195,73 @@
                 #:label-color     lc
                 #:label-position  lp
                 #:label-scale     ls
+                #:show-orbits?    orbits?
                 #:animations-list animations-list
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
                 #:on-mouse-click  mouse-click
                 #:objects-list o-list))
 
-(define (planet-saturn #:position        [pos (position 0 0 21)]
-                       #:rotation        [rota (rotation 0.0 0.0 0.0)]
-                       #:scale           [sca (scale 1.0 1.0 1.0)]
-                       #:color           [col (color 255 255 255)]
-                       #:texture         [texture saturn-tex]
-                       #:radius          [r 9.4] ; 5
-                       #:opacity         [opac 1.0]
-                       #:rings-list      [r-list (list (basic-ring #:tilt (tilt 45 90 0)
-                                                                   #:opacity 0.8
-                                                                   #:texture saturnring-tex
-                                                                   #:radius (- (* r 1.55) r) ;0.5
-                                                                   #:thickness (* r 0.9)) ; 3.5
-                                                       #;(basic-ring #:tilt (tilt 45 90 0)
-                                                                   #:texture saturnring-tex
-                                                                   #:radius 1.6
-                                                                   #:thickness 0.45)
-                                                       #;(basic-ring #:tilt (tilt 45 90 0)
-                                                                   #:texture saturnring-tex
-                                                                   #:radius 2.6
-                                                                   #:thickness 0.45)
-                                                       #;(basic-ring #:tilt (tilt 45 90 0)
-                                                                   #:texture saturnring-tex
-                                                                   #:radius 3.6
-                                                                   #:thickness 0.45))]
-                       #:moons-list      [m-list '()]
-                       #:label           [l "Saturn"]
-                       #:label-color     [lc 'white]
-                       #:label-position  [lp (position 0 r 0)]
-                       #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
-                       #:animations-list [animations-list (do-many (x-rotation))]
-                       #:on-mouse-enter  [mouse-enter #f]
-                       #:on-mouse-leave  [mouse-leave #f]
-                       #:on-mouse-click  [mouse-click #f]
-                       #:objects-list    [o-list '()])
+(define/contract/doc (planet-saturn #:position        [pos (position 0 0 21)]
+                                    #:rotation        [rota (rotation 0.0 0.0 0.0)]
+                                    #:scale           [sca (scale 1.0 1.0 1.0)]
+                                    #:color           [col (color 255 255 255)]
+                                    #:texture         [texture saturn-tex]
+                                    #:radius          [r 9.4] ; 5
+                                    #:opacity         [opac 1.0]
+                                    #:rings-list      [r-list (list (basic-ring #:tilt (tilt 45 90 0)
+                                                                                #:opacity 0.8
+                                                                                #:texture saturnring-tex
+                                                                                #:radius (- (* r 1.55) r) ;0.5
+                                                                                #:thickness (* r 0.9)) ; 3.5
+                                                                    #;(basic-ring #:tilt (tilt 45 90 0)
+                                                                                  #:texture saturnring-tex
+                                                                                  #:radius 1.6
+                                                                                  #:thickness 0.45)
+                                                                    #;(basic-ring #:tilt (tilt 45 90 0)
+                                                                                  #:texture saturnring-tex
+                                                                                  #:radius 2.6
+                                                                                  #:thickness 0.45)
+                                                                    #;(basic-ring #:tilt (tilt 45 90 0)
+                                                                                  #:texture saturnring-tex
+                                                                                  #:radius 3.6
+                                                                                  #:thickness 0.45))]
+                                    #:moons-list      [m-list '()]
+                                    #:label           [l "Saturn"]
+                                    #:label-color     [lc 'white]
+                                    #:label-position  [lp (position 0 r 0)]
+                                    #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
+                                    #:show-orbits?    [orbits? #f]
+                                    #:animations-list [animations-list (do-many (x-rotation))]
+                                    #:on-mouse-enter  [mouse-enter #f]
+                                    #:on-mouse-leave  [mouse-leave #f]
+                                    #:on-mouse-click  [mouse-click #f]
+                                    #:objects-list    [o-list '()])
+
+  (->i ()
+       (#:position        [pos object?]
+        #:rotation        [rota object?]
+        #:scale           [sca (or/c number? object?)]
+        #:color           [col (or/c string? symbol? object?)]
+        #:texture         [texture any/c]
+        #:radius          [r real?]
+        #:opacity         [opac between-0-1-inclusive?]
+        #:rings-list      [r-list (or/c empty? (listof entity?))]
+        #:moons-list      [m-list (or/c empty? (listof entity?))]
+        #:label           [l (or/c boolean? string?)]
+        #:label-color     [lc (or/c string? symbol? object?)]
+        #:label-position  [lp object?]
+        #:label-scale     [ls (or/c number? object?)]
+        #:show-orbits?    [orbits? boolean?]
+        #:animations-list [animations-list (or/c empty? (listof object?))]
+        #:on-mouse-enter  [mouse-enter (or/c #f (listof object?))]
+        #:on-mouse-leave  [mouse-leave (or/c #f (listof object?))]
+        #:on-mouse-click  [mouse-click (or/c #f (listof object?))]
+        #:objects-list    [c-list (or/c empty? (listof entity?))])
+       [returns entity?])
+
+  @{Planet Saturn.}
+  
   (basic-planet #:position        pos
                 #:rotation        rota
                 #:scale           sca
@@ -951,30 +1275,57 @@
                 #:label-color     lc
                 #:label-position  lp
                 #:label-scale     ls
+                #:show-orbits?    orbits?
                 #:animations-list animations-list
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
                 #:on-mouse-click  mouse-click
                 #:objects-list o-list))
 
-(define (planet-uranus #:position        [pos (position 0 0 9)]
-                       #:rotation        [rota (rotation 0.0 0.0 0.0)]
-                       #:scale           [sca (scale 1.0 1.0 1.0)]
-                       #:color           [col (color 255 255 255)]
-                       #:texture         [texture uranus-tex]
-                       #:radius          [r 4.04]
-                       #:opacity         [opac 1.0]
-                       #:rings-list      [r-list '()]
-                       #:moons-list      [m-list '()]
-                       #:label           [l "Uranus"]
-                       #:label-color     [lc 'white]
-                       #:label-position  [lp (position 0 r 0)]
-                       #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
-                       #:animations-list [animations-list (do-many (x-rotation))]
-                       #:on-mouse-enter  [mouse-enter #f]
-                       #:on-mouse-leave  [mouse-leave #f]
-                       #:on-mouse-click  [mouse-click #f]
-                       #:objects-list    [o-list '()])
+(define/contract/doc (planet-uranus #:position        [pos (position 0 0 9)]
+                                    #:rotation        [rota (rotation 0.0 0.0 0.0)]
+                                    #:scale           [sca (scale 1.0 1.0 1.0)]
+                                    #:color           [col (color 255 255 255)]
+                                    #:texture         [texture uranus-tex]
+                                    #:radius          [r 4.04]
+                                    #:opacity         [opac 1.0]
+                                    #:rings-list      [r-list '()]
+                                    #:moons-list      [m-list '()]
+                                    #:label           [l "Uranus"]
+                                    #:label-color     [lc 'white]
+                                    #:label-position  [lp (position 0 r 0)]
+                                    #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
+                                    #:show-orbits?    [orbits? #f]
+                                    #:animations-list [animations-list (do-many (x-rotation))]
+                                    #:on-mouse-enter  [mouse-enter #f]
+                                    #:on-mouse-leave  [mouse-leave #f]
+                                    #:on-mouse-click  [mouse-click #f]
+                                    #:objects-list    [o-list '()])
+
+  (->i ()
+       (#:position        [pos object?]
+        #:rotation        [rota object?]
+        #:scale           [sca (or/c number? object?)]
+        #:color           [col (or/c string? symbol? object?)]
+        #:texture         [texture any/c]
+        #:radius          [r real?]
+        #:opacity         [opac between-0-1-inclusive?]
+        #:rings-list      [r-list (or/c empty? (listof entity?))]
+        #:moons-list      [m-list (or/c empty? (listof entity?))]
+        #:label           [l (or/c boolean? string?)]
+        #:label-color     [lc (or/c string? symbol? object?)]
+        #:label-position  [lp object?]
+        #:label-scale     [ls (or/c number? object?)]
+        #:show-orbits?    [orbits? boolean?]
+        #:animations-list [animations-list (or/c empty? (listof object?))]
+        #:on-mouse-enter  [mouse-enter (or/c #f (listof object?))]
+        #:on-mouse-leave  [mouse-leave (or/c #f (listof object?))]
+        #:on-mouse-click  [mouse-click (or/c #f (listof object?))]
+        #:objects-list    [c-list (or/c empty? (listof entity?))])
+       [returns entity?])
+
+  @{Planet Uranus.}
+  
   (basic-planet #:position        pos
                 #:rotation        rota
                 #:scale           sca
@@ -988,30 +1339,57 @@
                 #:label-color     lc
                 #:label-position  lp
                 #:label-scale     ls
+                #:show-orbits?    orbits?
                 #:animations-list animations-list
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
                 #:on-mouse-click  mouse-click
                 #:objects-list o-list))
 
-(define (planet-neptune #:position        [pos (position 0 0 9)]
-                        #:rotation        [rota (rotation 0.0 0.0 0.0)]
-                        #:scale           [sca (scale 1.0 1.0 1.0)]
-                        #:color           [col (color 255 255 255)]
-                        #:texture         [texture neptune-tex]
-                        #:radius          [r 3.88]
-                        #:opacity         [opac 1.0]
-                        #:rings-list      [r-list '()]
-                        #:moons-list      [m-list '()]
-                        #:label           [l "Neptune"]
-                        #:label-color     [lc 'white]
-                        #:label-position  [lp (position 0 r 0)]
-                        #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
-                        #:animations-list [animations-list (do-many (x-rotation))]
-                        #:on-mouse-enter  [mouse-enter #f]
-                        #:on-mouse-leave  [mouse-leave #f]
-                        #:on-mouse-click  [mouse-click #f]
-                        #:objects-list    [o-list '()])
+(define/contract/doc (planet-neptune #:position        [pos (position 0 0 9)]
+                                     #:rotation        [rota (rotation 0.0 0.0 0.0)]
+                                     #:scale           [sca (scale 1.0 1.0 1.0)]
+                                     #:color           [col (color 255 255 255)]
+                                     #:texture         [texture neptune-tex]
+                                     #:radius          [r 3.88]
+                                     #:opacity         [opac 1.0]
+                                     #:rings-list      [r-list '()]
+                                     #:moons-list      [m-list '()]
+                                     #:label           [l "Neptune"]
+                                     #:label-color     [lc 'white]
+                                     #:label-position  [lp (position 0 r 0)]
+                                     #:label-scale     [ls (scale (* 2 r) (* 2 r) 1)]
+                                     #:show-orbits?    [orbits? #f]
+                                     #:animations-list [animations-list (do-many (x-rotation))]
+                                     #:on-mouse-enter  [mouse-enter #f]
+                                     #:on-mouse-leave  [mouse-leave #f]
+                                     #:on-mouse-click  [mouse-click #f]
+                                     #:objects-list    [o-list '()])
+
+  (->i ()
+       (#:position        [pos object?]
+        #:rotation        [rota object?]
+        #:scale           [sca (or/c number? object?)]
+        #:color           [col (or/c string? symbol? object?)]
+        #:texture         [texture any/c]
+        #:radius          [r real?]
+        #:opacity         [opac between-0-1-inclusive?]
+        #:rings-list      [r-list (or/c empty? (listof entity?))]
+        #:moons-list      [m-list (or/c empty? (listof entity?))]
+        #:label           [l (or/c boolean? string?)]
+        #:label-color     [lc (or/c string? symbol? object?)]
+        #:label-position  [lp object?]
+        #:label-scale     [ls (or/c number? object?)]
+        #:show-orbits?    [orbits? boolean?]
+        #:animations-list [animations-list (or/c empty? (listof object?))]
+        #:on-mouse-enter  [mouse-enter (or/c #f (listof object?))]
+        #:on-mouse-leave  [mouse-leave (or/c #f (listof object?))]
+        #:on-mouse-click  [mouse-click (or/c #f (listof object?))]
+        #:objects-list    [c-list (or/c empty? (listof entity?))])
+       [returns entity?])
+
+  @{Planet Neptune.}
+  
   (basic-planet #:position        pos
                 #:rotation        rota
                 #:scale           sca
@@ -1025,6 +1403,7 @@
                 #:label-color     lc
                 #:label-position  lp
                 #:label-scale     ls
+                #:show-orbits?    orbits?
                 #:animations-list animations-list
                 #:on-mouse-enter  mouse-enter
                 #:on-mouse-leave  mouse-leave
